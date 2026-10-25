@@ -21,6 +21,7 @@ Always say which question the report is answering. Final quality is decided by t
 5. **Do not turn an item that meets the checklist into a finding.** Raise a finding only for a characteristic that is violated in the text. An item that passes gets no Blocker or Should fix; a case the item never claimed to cover (other error paths, other stories) is a question or at most a Suggestion.
 6. A verdict at the end of the report: **Ready / Conditional / Not ready** for the next step (validate, approve, or handing to the team), with specific conditions.
 7. Never claim "the document passes" just because no defects were found: state the scope that was checked (which items, which characteristics) and what could not be checked for lack of information.
+8. Do not create new codes: cite the codes the document already has, and quote the text when an item has none.
 
 ## Process
 1. **Identify**: the kind of work product (story, use case, NFR, model, whole PRD), the review objective (find defects, check standards, confirm completeness and correctness, consensus, problem solving, education: 10.37.3), the level of formality. Ask at most 3 questions if missing: who uses this document, whether the team has a glossary/standard templates, where the business goal and scope are.
@@ -45,3 +46,10 @@ Missing links or coverage found: hand off to `requirements-trace`. Story/AC to r
 - `references/checklists.md`: checklists by document type.
 - `references/iso29148.md`: ISO/IEC/IEEE 29148:2018 checked against the standard itself: 9 characteristics for individual requirements, 5 for the whole set, keywords and word groups to avoid, attributes, 4 verification methods, clause 9 content. Supplements the 9 BABOK characteristics; does not replace them.
 - `templates/review-report.md`: report template.
+
+## Conventions
+
+- Provenance of project information: `[Stated]` the user or a document says it outright (name the source); `[Inferred]` drawn from what was said; `[Assumption]` no basis yet, to be confirmed. Use a label only where the reader needs to know which one it is.
+- IDs: use the project's own scheme if it has one. Otherwise default to `GOAL-xx`, `FR-xx`, `US-xx`, `AC-xx.y`, `BR-xx`, `NFR-<characteristic>-xx`, `TC-xx`, `UAT-xx`, `SH-xx`.
+- An ID never changes and is never reused. An ID you choose yourself is marked "proposed". Do not create an ID for something the user has not supplied; a `TC-` code goes only to a test that exists or that `requirements-testcases` writes.
+- In `nfr-writer`, the evidence types (a), (b), (c) say where a threshold comes from; they are not provenance labels.
