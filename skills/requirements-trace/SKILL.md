@@ -8,14 +8,15 @@ description: "Build a traceability matrix and review coverage between goals, FRs
 Goal: link requirements to one another so you can see **what is not covered** and **what is affected if this changes**. Respond in the user's language. Works together with the `story-writer` skill (writes FRs/stories/AC) and `nfr-writer` (writes NFRs).
 
 ## Principles
-1. **Link only when the link has value.** Traceability effort grows sharply with the number of requirements and the level of formality (BABOK 5.1.4.1). Ask the user which level they need: light (goal ↔ story ↔ AC), medium (add NFRs and business rules), full (add design and tests).
+1. **Link only when the link has value.** Traceability effort grows sharply with the number of requirements and the level of formality (BABOK 5.1.4.1). **Ask the user which level they need before you build anything**: light (goal ↔ story ↔ AC), medium (add NFRs and business rules), full (add design and tests). If the user did not say, ask and name the three levels; do not assume one.
 2. **Never invent links.** Record only links that have a basis in the documents the user supplied; inferred links are marked "proposed, needs confirmation".
-3. **Every item has a stable code** that does not change when the content is edited. Default convention: `GOAL-xx`, `FR-xx`, `US-xx` (or an epic-based code such as `ORD-12`), `AC-xx.y`, `BR-xx` (business rule), `NFR-<characteristic>-xx`, `TC-xx`. If the team already has a convention, use it.
+   **Never create test cases or `TC-` codes.** Tests are linked only if the user supplied them. If none exist, leave the TC cell "none", list "no tests" under the gaps, and point to `requirements-testcases`, even when the user asks you to fill every cell.
+3. **Every item has a stable code** that does not change when the content is edited. Default convention: `GOAL-xx`, `FR-xx`, `US-xx` (or an epic-based code such as `ORD-12`), `AC-xx.y`, `BR-xx` (business rule), `NFR-<characteristic>-xx`, and `TC-xx` for tests that the user supplied. If the team already has a convention, use it.
 4. Use the correct relationship types (see `references/relationships.md`).
 
 ## Process
-1. Collect the input documents (PRD, story list, NFR table...). If codes are missing, assign proposed codes and say so.
-2. Choose the traceability level with the user (light/medium/full).
+1. Collect the input documents (PRD, story list, NFR table...). If codes are missing on goals, stories, AC, rules or NFRs, assign proposed codes and say so (never for tests).
+2. Take the traceability level the user stated; if they stated none, ask (light/medium/full) before building the matrix.
 3. Build the catalogue of items and links using `templates/trace-matrix.md`.
 4. Run the coverage checks (`references/coverage-checks.md`) and list the gaps by severity.
 5. If the user states a change, do an impact analysis: which items are affected directly/indirectly, what must be edited, who needs to re-approve.
