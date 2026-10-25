@@ -1,0 +1,69 @@
+id: rt-main
+skill: requirements-trace
+kind: main
+prompt: |
+  Build a traceability matrix at the medium level (goals, stories, AC, business rules, NFRs) for the package below and report the coverage gaps.
+fixtures: [clinic-spec.md]
+rubric: [RT-1, RT-2, RT-3]
+checks:
+  - id: sections
+    type: sections
+    names: [[Catalogue, Catalog], [Matrix], [Gaps, Gap report], Contradictions, To confirm]
+    ordered: true
+  - id: catalogue-lists-every-item
+    type: ids_all
+    section: [Catalogue, Catalog]
+    ids: [GOAL-01, GOAL-02, GOAL-03, US-01, US-02, US-03, US-04, US-05, AC-01.1, AC-01.2, AC-02.1, AC-02.2, AC-03.1, AC-05.1, BR-01, BR-02, BR-03, BR-04, NFR-SEC-01, NFR-PERF-01]
+  - id: no-invented-codes
+    type: ids_subset
+  - id: seeded-gaps-found
+    type: rows
+    section: [Gaps, Gap report, Contradictions]
+    min_recall: 0.85
+    max_false: 0
+    expect:
+      - id: abandoned-goal
+        required: true
+        anchor: 'GOAL-03'
+        any: ['abandon', 'no (FR|stor)', 'not covered', 'no requirement', 'uncovered', 'not (derived|traced)', 'nothing']
+      - id: orphan-story
+        required: true
+        anchor: 'US-05'
+        any: ['orphan', 'no goal', 'not trace', 'scope creep', 'no source', 'without (a )?goal']
+      - id: story-without-ac
+        required: true
+        anchor: 'US-04'
+        any: ['\bno ACs?\b', 'no acceptance', 'without', 'missing', 'lack', 'absent']
+      - id: unreferenced-rule
+        anchor: 'BR-03'
+        any: ['not (referenced|used|linked)', 'unused', 'no stor', 'orphan', 'unreferenced', 'no link']
+      - id: dangling-rule-reference
+        anchor: 'BR-09'
+        any: ['does not exist', 'missing', 'undefined', 'not defined', 'dangling', 'unknown', 'no such']
+      - id: window-contradiction
+        required: true
+        anchor: ['US-02|AC-02', 'BR-02']
+        any: ['contradict', 'conflict', 'inconsisten', 'disagree', 'mismatch', 'differ', 'clash']
+      - id: nfr-without-measure
+        anchor: 'NFR-PERF-01'
+        any: ['measur', 'vague', 'no metric', 'unmeasur', 'testable']
+    controls:
+      - id: us-01
+        anchor: 'US-01'
+        flag: 'orphan|abandon|no AC|no goal|not referenced|does not exist|no acceptance'
+      - id: goal-01
+        anchor: 'GOAL-01'
+        flag: 'orphan|abandon|no AC|no goal|not referenced|does not exist|no acceptance'
+      - id: us-03
+        anchor: 'US-03'
+        flag: 'orphan|abandon|no AC|no goal|not referenced|does not exist|no acceptance'
+  - id: matrix-links-are-true
+    type: links
+    section: [Matrix]
+    together: [[GOAL-01, US-01], [GOAL-01, US-02], [GOAL-01, US-04], [GOAL-02, US-03]]
+    never: [[GOAL-01, US-03], [GOAL-02, US-01], [GOAL-02, US-02], [GOAL-02, US-04], [GOAL-03, US-01],
+            [GOAL-03, US-02], [GOAL-03, US-03], [GOAL-03, US-04], [US-05, GOAL-01], [US-05, GOAL-02], [US-05, GOAL-03]]
+  - id: english
+    type: language
+    lang: en
+bad_expected_failures: [catalogue-lists-every-item, no-invented-codes, seeded-gaps-found, matrix-links-are-true]

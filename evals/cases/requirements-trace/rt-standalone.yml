@@ -1,0 +1,30 @@
+id: rt-standalone
+skill: requirements-trace
+kind: standalone
+install: [requirements-trace]
+prompt: |
+  For each requirement below, which verification method should I record per ISO/IEC/IEEE 29148, and what does each method mean?
+
+  - REQ-01 The system shall show the booking confirmation after the patient confirms.
+  - REQ-02 The reminder shall be sent the day before the appointment.
+  - REQ-03 The patient data shall be encrypted at rest.
+fixtures: []
+rubric: [RT-1]
+checks:
+  - id: method-per-requirement
+    type: column_values
+    column: 'method'
+    allowed: [inspection, analysis, demonstration, test]
+    min_rows: 3
+  - id: all-three-requirements-covered
+    type: ids_all
+    ids: [REQ-01, REQ-02, REQ-03]
+  - id: four-methods-explained
+    type: distinct_terms
+    terms: [inspection, analysis, demonstration, test]
+    min: 4
+  - id: no-invented-codes
+    type: ids_subset
+  - id: no-missing-resource
+    type: no_missing_resource
+bad_expected_failures: [method-per-requirement, four-methods-explained, no-missing-resource]

@@ -1,0 +1,60 @@
+id: sw-main
+skill: story-writer
+kind: main
+prompt: |
+  Write the user story and acceptance criteria for this feature.
+
+  Feature: a registered patient can move an existing appointment to another free slot with the same doctor. Moving is allowed up to 24 hours before the appointment starts (business rule BR-02). Moving counts as cancelling the old slot and booking the new one, so the old slot becomes free again. A patient may hold only one appointment per doctor per day (BR-01). The move should complete within 3 seconds.
+fixtures: []
+rubric: [SW-1, SW-2, SW-3]
+checks:
+  - id: sections
+    type: sections
+    names: [[Acceptance criteria, AC], Assumptions, To clarify, [NFRs found, NFRs, Non-functional]]
+    ordered: true
+  - id: specific-role
+    type: match
+    pattern: '\bAs an? [\w ]{0,25}patient\b'
+  - id: not-generic-user
+    type: not_match
+    pattern: '\bAs a user\b'
+  - id: ac-count
+    type: match
+    section: [Acceptance criteria, AC]
+    pattern: '^\s*\d+[.)]\s'
+    flags: im
+    min: 3
+  - id: no-vague-ac
+    type: no_vague_ac
+    section: [Acceptance criteria, AC]
+  - id: no-new-numbers
+    type: numbers_from_input
+    section: [Acceptance criteria, AC]
+  - id: nfr-not-in-ac
+    type: not_match
+    section: [Acceptance criteria, AC]
+    pattern: '\bseconds?\b'
+  - id: nfr-handed-off
+    type: match
+    section: [NFRs found, NFRs, Non-functional]
+    pattern: '3[- ]seconds?'
+  - id: nfr-skill-named
+    type: match
+    section: [NFRs found, NFRs, Non-functional]
+    pattern: 'nfr-writer'
+  - id: rule-br02
+    type: match
+    pattern: 'BR-02'
+  - id: rule-br01
+    type: match
+    pattern: 'BR-01'
+  - id: boundary
+    type: match
+    section: [Acceptance criteria, AC, To clarify]
+    pattern: '(exactly|at least|less than|fewer than|more than).{0,30}24|24.{0,30}(exactly|or more|or less)'
+  - id: one-slice
+    type: story_shape
+  - id: english
+    type: language
+    lang: en
+bad_expected_failures: [sections, specific-role, not-generic-user, no-vague-ac, no-new-numbers, nfr-not-in-ac, nfr-handed-off, nfr-skill-named, rule-br02, rule-br01, boundary]

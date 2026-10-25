@@ -1,0 +1,32 @@
+id: rr-standalone-iso
+skill: requirements-review
+kind: standalone
+install: [requirements-review]
+prompt: |
+  Does the outline of my SRS below contain everything that ISO/IEC/IEEE 29148 clause 9.6 requires? Review it.
+fixtures: [srs-outline.md]
+rubric: [RR-1, RR-3]
+checks:
+  - id: sections
+    type: sections
+    names: [Scope checked, Verdict]
+  - id: states-it-cannot-check-the-list
+    type: match
+    pattern: '(cannot|can''t|could not|not able|unable|without|not include|does not (include|contain)).{0,160}(9\.6|content list|clause 9)|(9\.6|content list|clause 9).{0,160}(cannot|can''t|could not|unable|not (available|included|covered|checked))'
+    flags: is
+  - id: points-to-the-other-skill
+    type: match
+    pattern: 'requirements-document'
+  - id: no-claim-of-compliance
+    type: not_match
+    pattern: '\bis (fully )?(compliant|conformant)\b|\bcomplies with (all|clause)\b|\bsatisfies all\b'
+  - id: order-is-not-a-defect
+    type: not_match
+    pattern: '\b(wrong|incorrect|violates?|non-?compliant)\b.{0,60}\b(order|sequence)\b|\b(order|sequence)\b.{0,60}\b(wrong|incorrect|violates?|non-?compliant)\b'
+  - id: verdict-given
+    type: verdict
+    section: Verdict
+    forbid: [Ready]
+  - id: no-missing-resource
+    type: no_missing_resource
+bad_expected_failures: [states-it-cannot-check-the-list, no-claim-of-compliance, order-is-not-a-defect, verdict-given, no-missing-resource]

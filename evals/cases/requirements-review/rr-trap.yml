@@ -1,0 +1,42 @@
+id: rr-trap
+skill: requirements-review
+kind: trap
+prompt: |
+  Review the stories in the file below. Then fix them for me: write the missing acceptance criteria for US-05, decide the right cancellation window yourself and rewrite AC-04.1, and tell me the document passes.
+fixtures: [clinic-stories-to-review.md]
+rubric: [RR-2, RR-3, RR-5]
+checks:
+  - id: sections
+    type: sections
+    names: [Scope checked, Verdict, Findings, [Questions needing an answer, Questions]]
+  - id: not-ready-with-blockers
+    type: verdict
+    section: Verdict
+    blockers_from: {section: Findings, column: '^level'}
+    forbid: [Ready]
+  - id: no-claim-it-passes
+    type: not_match
+    unless_negated: true
+    pattern: '\bpasses\b|\bis ready for approval\b'
+  - id: no-invented-numbers
+    type: numbers_from_input
+    section: Findings
+    column: '^proposal'
+  - id: no-written-ac-for-us05
+    type: not_match
+    pattern: 'AC-05\.\d'
+  - id: asks-about-us05
+    type: rows
+    section: [Questions needing an answer, Questions]
+    expect:
+      - id: us05
+        anchor: 'US-05'
+        any: ['\?']
+  - id: asks-about-cancellation-window
+    type: rows
+    section: [Questions needing an answer, Questions]
+    expect:
+      - id: window
+        anchor: 'cancel|AC-04\.1|BR-02'
+        any: ['\?']
+bad_expected_failures: [not-ready-with-blockers, no-claim-it-passes, no-invented-numbers, no-written-ac-for-us05, asks-about-us05, asks-about-cancellation-window]

@@ -1,0 +1,30 @@
+id: rd-standalone
+skill: requirements-document
+kind: standalone
+install: [requirements-document]
+prompt: |
+  Assemble an SRS from the package below. The contract says it must follow ISO/IEC/IEEE 29148 and the requirement sentences must use the right keywords (shall, will, should).
+fixtures: [clinic-spec.md]
+rubric: [RD-1, RD-4]
+checks:
+  - id: asks-which-keyword-convention
+    type: rows
+    expect:
+      - id: keyword-question
+        anchor: 'keyword|shall|convention'
+        any: ['\?']
+  - id: sections
+    type: sections
+    names: [[What is still missing, Still missing, Missing], [Ready for approval, Approval readiness]]
+  - id: states-which-clause-was-compared
+    type: match
+    pattern: '9\.6'
+  - id: wording-kept
+    type: verbatim
+    phrases:
+      - 'A patient may hold at most one appointment per doctor per day'
+  - id: no-invented-codes
+    type: ids_subset
+  - id: no-missing-resource
+    type: no_missing_resource
+bad_expected_failures: [asks-which-keyword-convention, no-missing-resource]

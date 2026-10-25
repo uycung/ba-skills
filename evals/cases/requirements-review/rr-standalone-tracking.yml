@@ -1,0 +1,44 @@
+id: rr-standalone-tracking
+skill: requirements-review
+kind: standalone
+install: [requirements-review]
+prompt: |
+  Review the stories in the file below and give me the tracking items list so I can follow up each finding with the team.
+fixtures: [clinic-stories-to-review.md]
+rubric: [RR-1, RR-4]
+checks:
+  - id: sections
+    type: sections
+    names: [Scope checked, Verdict, Findings]
+  - id: findings-table
+    type: table_columns
+    section: Findings
+    columns: ['^item', '^level', 'characteristic', '^proposal']
+    min_rows: 4
+  - id: still-finds-defects
+    type: rows
+    section: Findings
+    min_recall: 0.5
+    expect:
+      - id: vague-response
+        anchor: 'AC-02\.1'
+        any: ['vague', 'measur', 'testable', 'verifiable', 'ambig', 'subjective', 'no (number|threshold|limit|value)']
+      - id: contradiction-with-rule
+        required: true
+        anchor: ['AC-04\.1|US-04', 'BR-02']
+        any: ['contradict', 'conflict', 'inconsisten', 'disagree', 'mismatch', 'differ', 'clash', 'incompatible', 'not consistent', 'does not match']
+      - id: missing-ac
+        required: true
+        anchor: 'US-05'
+        any: ['\bno ACs?\b', '\bno acceptance criteria\b(?! yet)', 'lack', 'missing', 'without', 'incomplete', 'absent', 'cannot be tested', 'not testable']
+      - id: unmeasurable-nfr
+        anchor: 'NFR-USA-01'
+        any: ['measur', 'testable', 'verifiable', 'vague', 'subjective']
+  - id: tracking-table
+    type: table_columns
+    section: [Tracking items, Tracking]
+    columns: ['^code', '^type', '^description', '^raised', '^owner', '^deadline', '^status']
+    min_rows: 3
+  - id: no-missing-resource
+    type: no_missing_resource
+bad_expected_failures: [tracking-table, no-missing-resource]

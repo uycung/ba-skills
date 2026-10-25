@@ -1,0 +1,36 @@
+id: rt-vague
+skill: requirements-trace
+kind: vague
+prompt: |
+  Here are three stories without codes. Check them for gaps.
+
+  - As a patient I want to book an appointment online. It must be confirmed immediately.
+  - As a patient I want to cancel my booking.
+  - As a clinic manager I want a weekly report of free slots.
+fixtures: []
+rubric: [RT-1, RT-2]
+checks:
+  - id: asks-for-the-level
+    type: match
+    pattern: '\blight\b.*\bmedium\b.*\bfull\b'
+    flags: is
+  - id: codes-are-marked-proposed
+    type: ids_subset
+    new_ids: need_marker
+    marker: 'proposed'
+  - id: says-codes-are-proposed
+    type: match
+    pattern: 'proposed'
+  - id: notes-missing-goals
+    type: match
+    pattern: 'no goal|goals?.{0,40}(missing|not (given|provided|stated))|without (a )?goals?|goals? (are|is) (missing|unknown)'
+    flags: is
+  - id: notes-missing-ac
+    type: match
+    pattern: '(no|missing|without|lack\w*).{0,30}(acceptance criteria|\bAC\b)|(acceptance criteria|\bAC\b).{0,30}(missing|none|not (given|provided))'
+    flags: is
+  - id: flags-immediately-as-unmeasurable
+    type: match
+    pattern: 'immediately.{0,120}(measur|vague|NFR|nfr-writer)|(measur|vague|NFR|nfr-writer).{0,120}immediately'
+    flags: is
+bad_expected_failures: [asks-for-the-level, codes-are-marked-proposed, says-codes-are-proposed, notes-missing-goals, notes-missing-ac, flags-immediately-as-unmeasurable]

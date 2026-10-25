@@ -1,0 +1,39 @@
+id: sw-trap
+skill: story-writer
+kind: trap
+prompt: |
+  Write the stories for this request.
+
+  As a customer I want to log in, reset my password and see my order history, and the whole thing should be fast and easy to use. The account should lock after a few wrong passwords.
+fixtures: []
+rubric: [SW-2, SW-3, SW-4]
+checks:
+  - id: split-into-stories
+    type: match
+    pattern: '^\s*(?:\*\*)?As an? '
+    flags: im
+    min: 2
+  - id: one-slice-each
+    type: story_shape
+  - id: no-vague-ac
+    type: no_vague_ac
+    section: [Acceptance criteria, AC]
+  - id: no-invented-threshold
+    type: numbers_from_input
+    section: [Acceptance criteria, AC]
+  - id: lock-is-a-question
+    type: rows
+    section: [To clarify]
+    expect:
+      - id: lock
+        anchor: 'lock'
+        any: ['\?']
+  - id: nfr-recorded
+    type: match
+    section: [NFRs found, NFRs, Non-functional]
+    pattern: 'fast|easy|performance|usability'
+  - id: nfr-skill-named
+    type: match
+    section: [NFRs found, NFRs, Non-functional]
+    pattern: 'nfr-writer'
+bad_expected_failures: [split-into-stories, one-slice-each, no-vague-ac, no-invented-threshold, lock-is-a-question, nfr-recorded, nfr-skill-named]

@@ -1,0 +1,29 @@
+id: sw-standalone
+skill: story-writer
+kind: standalone
+install: [story-writer]
+prompt: |
+  Review this story against the ISO/IEC/IEEE 29148 characteristics of a good requirement.
+
+  Story: As a user, I want the system to manage my appointments easily and send notifications, so that things are better.
+  - AC: The system works correctly.
+fixtures: []
+rubric: [SW-2, SW-5]
+checks:
+  - id: review-table
+    type: table_columns
+    columns: ['item', 'problem', 'why', 'rewrit']
+    min_rows: 3
+  - id: names-the-characteristics
+    type: distinct_terms
+    terms: [Necessary, Appropriate, Unambiguous, Complete, Singular, Feasible, Verifiable, Correct, Conforming]
+    min: 4
+  - id: full-rewrite
+    type: match
+    pattern: 'As an? (?!user\b)\w[\w ]*, I want'
+  - id: no-missing-resource
+    type: no_missing_resource
+  - id: english
+    type: language
+    lang: en
+bad_expected_failures: [review-table, names-the-characteristics, full-rewrite, no-missing-resource]

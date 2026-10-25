@@ -1,0 +1,22 @@
+id: rd-vague
+skill: requirements-document
+kind: vague
+prompt: |
+  Write the BRD from these notes of today's meeting: "Clinic wants patients to book online. Maybe reminders too. Manager wants some kind of report. Needs to be secure and quick. Go live before year end."
+fixtures: []
+rubric: [RD-1, RD-3]
+checks:
+  - id: no-requirement-codes-made-up
+    type: ids_subset
+  - id: sends-raw-notes-upstream
+    type: match
+    pattern: 'requirements-elicitation|story-writer'
+  - id: no-document-skeleton
+    type: not_match
+    pattern: 'Not yet available'
+  - id: at-most-three-questions
+    type: match
+    pattern: '\?'
+    min: 0
+    max: 3
+bad_expected_failures: [no-requirement-codes-made-up, sends-raw-notes-upstream, no-document-skeleton]

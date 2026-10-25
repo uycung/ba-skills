@@ -1,0 +1,45 @@
+id: rr-vague
+skill: requirements-review
+kind: vague
+prompt: |
+  Is this story fine to hand over to the dev team?
+fixtures: [clinic-us01-only.md]
+rubric: [RR-1, RR-3]
+checks:
+  - id: sections
+    type: sections
+    names: [Scope checked, Verdict]
+    ordered: true
+  - id: scope-states-limits
+    type: match
+    section: Scope checked
+    pattern: '(goal|scope).{0,200}(partial|not possible|cannot|could not|not be checked)|(partial|not possible|cannot|could not|not be checked).{0,200}(goal|scope)'
+    flags: is
+  - id: fine-items-not-flagged
+    type: rows
+    section: Findings
+    section_optional: true
+    min_recall: 1.0
+    max_false: 0
+    controls:
+      - id: us-01
+        anchor: 'US-01'
+        flag: 'Blocker|Should fix'
+      - id: ac-01-1
+        anchor: 'AC-01\.1'
+        flag: 'Blocker|Should fix'
+      - id: ac-01-2
+        anchor: 'AC-01\.2'
+        flag: 'Blocker|Should fix'
+  - id: no-overclaim
+    type: not_match
+    unless_negated: true
+    pattern: '\b(no (defects|issues|problems)|passes|fully (valid|correct|verified)|all good|flawless|perfect)\b'
+  - id: verdict-consistent
+    type: verdict
+    section: Verdict
+    blockers_from: {section: Findings, column: '^level'}
+  - id: english
+    type: language
+    lang: en
+bad_expected_failures: [scope-states-limits, fine-items-not-flagged, no-overclaim, verdict-consistent]

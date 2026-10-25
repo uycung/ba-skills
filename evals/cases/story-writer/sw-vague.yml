@@ -1,0 +1,31 @@
+id: sw-vague
+skill: story-writer
+kind: vague
+prompt: |
+  Viết user story cho tính năng quản lý đơn hàng, cần dễ dùng và chạy nhanh.
+fixtures: []
+rubric: [SW-1, SW-3, SW-5]
+checks:
+  - id: vietnamese
+    type: language
+    lang: vi
+  - id: ask-few-or-state-assumptions
+    type: any_of
+    checks:
+      - type: match
+        pattern: '\?'
+        min: 1
+        max: 4
+      - type: sections
+        names: [[Assumptions, Giả định]]
+        non_empty: true
+  - id: no-vague-ac
+    type: no_vague_ac
+    section: [Acceptance criteria, Tiêu chí chấp nhận, AC]
+    section_optional: true
+  - id: no-invented-numbers
+    type: numbers_from_input
+  - id: not-generic-user
+    type: not_match
+    pattern: '\bas a user\b|với tư cách là người dùng\b|là một người dùng\b'
+bad_expected_failures: [vietnamese, ask-few-or-state-assumptions, no-vague-ac, no-invented-numbers, not-generic-user]

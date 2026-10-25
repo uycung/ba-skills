@@ -1,0 +1,81 @@
+id: rr-main
+skill: requirements-review
+kind: main
+prompt: |
+  Review the stories in the file below before I send them to the developers. Review objective: find defects. The team has no glossary.
+fixtures: [clinic-stories-to-review.md]
+rubric: [RR-1, RR-2, RR-3, RR-4]
+checks:
+  - id: sections
+    type: sections
+    names: [Scope checked, Verdict, Findings, [Questions needing an answer, Questions]]
+    ordered: true
+  - id: scope-states-limits
+    type: match
+    section: Scope checked
+    pattern: '(goal|scope).{0,200}(partial|not possible|cannot|could not|not be checked)|(partial|not possible|cannot|could not|not be checked).{0,200}(goal|scope)'
+    flags: is
+  - id: seeded-defects-found
+    type: rows
+    section: Findings
+    min_recall: 0.83
+    max_false: 0
+    expect:
+      - id: vague-response
+        anchor: 'AC-02\.1'
+        any: ['vague', 'measur', 'testable', 'verifiable', 'ambig', 'subjective', 'no (number|threshold|limit|value)', 'not specific']
+      - id: generic-unfinished-story
+        required: true
+        anchor: 'US-03|AC-03\.1'
+        any: ['atomic', 'singular', 'generic', 'too broad', 'split', 'vague', 'role', 'value']
+      - id: contradiction-with-rule
+        required: true
+        anchor: ['AC-04\.1|US-04', 'BR-02']
+        any: ['contradict', 'conflict', 'inconsisten', 'disagree', 'mismatch', 'differ', 'clash', 'incompatible', 'not consistent', 'does not match']
+      - id: missing-ac
+        required: true
+        anchor: 'US-05'
+        any: ['\bno ACs?\b', '\bno acceptance criteria\b(?! yet)', 'lack', 'missing', 'without', 'incomplete', 'absent', 'cannot be tested', 'not testable']
+      - id: mixed-terminology
+        anchor: ['customer', 'client']
+        any: ['terminolog', 'glossary', 'inconsisten', 'consisten', 'different (term|word|name)', 'synonym', 'same (role|actor)', 'named differently']
+      - id: unmeasurable-nfr
+        anchor: 'NFR-USA-01'
+        any: ['measur', 'testable', 'verifiable', 'vague', 'subjective', 'no (metric|criterion|threshold)']
+    controls:
+      - id: ac-01-1
+        anchor: 'AC-01\.1'
+        flag: 'Blocker|Should fix'
+      - id: ac-01-2
+        anchor: 'AC-01\.2'
+        flag: 'Blocker|Should fix'
+  - id: findings-point-at-input
+    type: items_resolve
+    section: Findings
+    column: '^item'
+    min_rows: 4
+  - id: severity-vocabulary
+    type: column_values
+    section: Findings
+    column: '^level'
+    allowed: [Blocker, Should fix, Suggestion]
+    min_rows: 4
+  - id: defect-or-suspicion
+    type: column_values
+    section: Findings
+    column: '^type'
+    allowed: [defect, suspicion]
+    min_rows: 4
+  - id: verdict-consistent
+    type: verdict
+    section: Verdict
+    blockers_from: {section: Findings, column: '^level'}
+    forbid: [Ready]
+  - id: proposals-add-no-numbers
+    type: numbers_from_input
+    section: Findings
+    column: '^proposal'
+  - id: english
+    type: language
+    lang: en
+bad_expected_failures: [scope-states-limits, seeded-defects-found, findings-point-at-input, severity-vocabulary, verdict-consistent, proposals-add-no-numbers]

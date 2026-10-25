@@ -1,0 +1,1 @@
+I could not read requirements-review/references/iso29148.md, so here is a quick look: the story is unclear and could be better. Consider making it more specific and adding some detail to the criteria.

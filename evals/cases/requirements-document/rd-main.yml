@@ -1,0 +1,49 @@
+id: rd-main
+skill: requirements-document
+kind: main
+prompt: |
+  Assemble a PRD for the development team from the package below.
+fixtures: [clinic-spec.md]
+rubric: [RD-1, RD-2, RD-3, RD-4]
+checks:
+  - id: sections
+    type: sections
+    names: [[What is still missing, Still missing, Missing], [Ready for approval, Approval readiness]]
+  - id: stamped-unapproved
+    type: match
+    pattern: 'unapproved|not approved|draft'
+  - id: every-source-item-present
+    type: ids_all
+    ids: [GOAL-01, GOAL-02, GOAL-03, US-01, US-02, US-03, US-04, BR-01, BR-02, BR-03, BR-04, NFR-SEC-01, NFR-PERF-01]
+  - id: no-invented-codes
+    type: ids_subset
+  - id: wording-kept
+    type: verbatim
+    phrases:
+      - 'only the first confirmation succeeds'
+      - 'Reminders are sent only to patients who gave consent to messages'
+      - 'A patient may hold at most one appointment per doctor per day'
+  - id: empty-sections-shown
+    type: match
+    pattern: 'Not yet available'
+  - id: missing-stakeholders-listed
+    type: match
+    section: [What is still missing, Still missing, Missing]
+    pattern: 'stakeholder'
+  - id: missing-business-case-listed
+    type: match
+    section: [What is still missing, Still missing, Missing]
+    pattern: 'business case|financial|cost'
+  - id: consistency-problems-reported
+    type: rows
+    expect:
+      - id: window-contradiction
+        anchor: ['US-02|AC-02', 'BR-02']
+        any: ['contradict', 'conflict', 'inconsisten', 'mismatch']
+      - id: dangling-rule
+        anchor: 'BR-09'
+        any: ['does not exist', 'undefined', 'not defined', 'missing', 'no such', 'dangling', 'unknown']
+  - id: suggests-review-before-approval
+    type: match
+    pattern: 'requirements-review'
+bad_expected_failures: [sections, stamped-unapproved, every-source-item-present, no-invented-codes, wording-kept, empty-sections-shown, missing-stakeholders-listed, missing-business-case-listed, consistency-problems-reported, suggests-review-before-approval]
