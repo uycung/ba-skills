@@ -16,6 +16,7 @@ checks:
     pattern: 'not estimated'
   - id: no-cost-figures
     type: not_match
+    unless_sourced_by_code: true
     flags: i
     pattern: '\b\d+\s*(?:hours?|days?|story points?|points?|h|d)\b'
   - id: no-invented-codes

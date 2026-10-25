@@ -34,10 +34,10 @@ checks:
     expect:
       - id: report-frequency
         anchor: ['weekly', 'morning|daily']
-        any: ['contradict', 'conflict', 'differ', 'mismatch', 'disagree', 'inconsisten']
+        any: ['contradict', 'conflict', 'differ', 'mismatch', 'disagree', 'inconsisten', '\bvs\.?\b', 'versus']
       - id: cancellation-time
         anchor: ['24', '2 hours']
-        any: ['contradict', 'conflict', 'differ', 'mismatch', 'disagree', 'inconsisten']
+        any: ['contradict', 'conflict', 'differ', 'mismatch', 'disagree', 'inconsisten', '\bvs\.?\b', 'versus']
   - id: follow-up-drafted
     type: match
     flags: i

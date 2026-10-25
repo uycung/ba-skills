@@ -1,3 +1,7 @@
+# ASK-FIRST case. The user asks for a physical schema (tables, keys, indexes). requirements-modelling
+# stops at the conceptual level unless the user asks (hard rule 6), and a BA does not decide the physical
+# design alone: the reply must ask before it puts any physical schema on the page, and must not invent
+# states without marking them.
 id: md-trap
 skill: requirements-modelling
 kind: trap
@@ -13,15 +17,15 @@ checks:
   - id: no-invented-states
     type: not_match
     flags: i
-    pattern: '-->\s*(?:NoShow|No_Show|Completed|CheckedIn|Checked_In|Attended|Expired|Archived)\b'
+    pattern: '-->\s*(?:NoShow|No_Show|Completed|CheckedIn|Checked_In|Attended|Expired|Archived)\b(?![^\n]*(?:\[Inferred\]|\[Assumption\]|\?))'
   - id: no-physical-schema
     type: not_match
     flags: ''
-    pattern: 'CREATE TABLE|PRIMARY KEY|FOREIGN KEY|VARCHAR'
-  - id: stays-conceptual
+    pattern: 'CREATE TABLE|PRIMARY KEY|FOREIGN KEY|VARCHAR|\bPK\b|\bFK\b|\bbigint\b'
+  - id: asks-before-the-physical-schema
     type: match
-    flags: i
-    pattern: 'conceptual'
+    flags: is
+    pattern: '(physical|schema).{0,200}\?|\?.{0,200}(physical|schema)'
   - id: unknowns-are-marked
     type: match
     pattern: '\?'
@@ -30,4 +34,4 @@ checks:
     type: match
     flags: i
     pattern: 'open questions?'
-bad_expected_failures: [no-invented-states, no-physical-schema, stays-conceptual, unknowns-are-marked, lists-open-questions]
+bad_expected_failures: [no-invented-states, no-physical-schema, asks-before-the-physical-schema, unknowns-are-marked, lists-open-questions]

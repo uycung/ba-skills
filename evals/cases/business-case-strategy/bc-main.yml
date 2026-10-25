@@ -12,17 +12,20 @@ checks:
   - id: discount-rate-not-chosen
     type: not_match
     flags: im
-    pattern: '^(?!.*(?:assumption|needs confirmation|finance|cfo)).*(?:discount|hurdle).*\d+(?:[.,]\d+)?\s*%'
+    pattern: '^(?!.*(?:assumption|needs confirmation|finance|cfo)).*(?:discount|hurdle).*(?<![\d.])(?!0(?:[.,]0+)?\s*%)\d+(?:[.,]\d+)?\s*%'
   - id: asks-for-discount-rate
     type: match
     flags: is
     pattern: '(discount rate|hurdle).{0,250}(finance|CFO|confirm|\?)'
   - id: figures-are-labelled
-    type: match
-    pattern: '\[(?:Stated|Source)[^\]]*\]'
+    type: labels
+    word: Stated
+    also: [Source]
+    short: S
+    legend_word: stated
     min: 3
   - id: says-it-is-not-advice
     type: match
     flags: i
-    pattern: 'not (a )?(financial|investment|legal)( or legal)? advis'
+    pattern: 'not (a )?(financial|investment|legal)((,| or| and) (financial|investment|legal))* advi[cs]'
 bad_expected_failures: [do-nothing-option, discount-rate-not-chosen, asks-for-discount-rate, figures-are-labelled, says-it-is-not-advice]

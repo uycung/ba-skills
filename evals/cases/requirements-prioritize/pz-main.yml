@@ -16,6 +16,7 @@ checks:
     pattern: 'not estimated'
   - id: no-cost-figures
     type: not_match
+    unless_sourced_by_code: true
     flags: i
     pattern: '\b(?:cost|effort|estimate)\b[^.\n|]{0,30}\b\d+\s*(?:hours?|days?|points?|h|d|usd)\b'
   - id: no-invented-codes

@@ -24,5 +24,5 @@ checks:
   - id: says-it-is-not-advice
     type: match
     flags: i
-    pattern: 'not (a )?(financial|investment|legal)( or legal)? advis'
+    pattern: 'not (a )?(financial|investment|legal)((,| or| and) (financial|investment|legal))* advi[cs]'
 bad_expected_failures: [do-nothing-option, no-unlabelled-amounts, no-roi-claimed, asks-for-the-figures, says-it-is-not-advice]

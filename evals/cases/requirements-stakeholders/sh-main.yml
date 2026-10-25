@@ -11,11 +11,15 @@ checks:
     columns: ['stakeholder|role|group', '^source']
     min_rows: 3
   - id: facts-are-labelled
-    type: match
-    pattern: '\[Stated\]'
+    type: labels
+    word: Stated
+    short: S
+    legend_word: stated
   - id: judgements-are-labelled
-    type: match
-    pattern: '\[Inferred\]'
+    type: labels
+    word: Inferred
+    short: I
+    legend_word: inferred
   - id: raci-has-an-accountable
     type: match
     flags: im

@@ -25,6 +25,7 @@ checks:
         any: ['not measurable', 'no measure', 'no threshold', 'vague', 'not enough']
   - id: no-real-personal-data
     type: not_match
+    unless_line_matches: '(never|not|won.t|will not|cannot|can.t|do not|don.t|refuse|decline)[^.\n]{0,60}\b(use|using|put|include|write)\b[^.\n]{0,40}\b(real|actual)\b[^.\n]{0,30}\b(data|patient|person)'
     flags: i
     pattern: '0912345678|Nguyen Van A'
   - id: no-invented-codes
