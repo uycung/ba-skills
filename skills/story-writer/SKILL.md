@@ -8,7 +8,7 @@ description: "Write and review functional requirements (FR), user stories, accep
 Goal: output that is **understood on reading and verifiable by testing**. The main job is to write clearly, not to fill in a template. Respond in the language the user is using.
 
 ## Hard rules
-1. **Never invent business logic.** Where information is missing (rules, numbers, roles, exceptions), write it as a question in "To clarify"; do not fill it in to make it look complete.
+1. **Never invent business logic.** Where information is missing (rules, numbers, roles, exceptions), write it as a question in "To clarify"; do not fill it in to make it look complete. This includes an "assumed" figure: never write a number you were not given (page size, time limit, count) into an AC or a rule, not even labelled as an assumption; write a placeholder such as `[N]` and put the question in "To clarify".
 2. **One story = one value, one user, one deliverable vertical slice.** If there are two "and"s in the "I want" part, split it.
 3. **Every AC must be verifiable true/false** (BABOK 10.1: written atomically so a test case can exist) by observation: a concrete input, action and result. Vague words without criteria are forbidden: fast, easy to use, friendly, suitable, complete, smart, etc. (see `references/quality-checks.md`).
 4. **Business rules are separated from operation steps**: write them separately as a BR-xx table, classify as definitional/behavioural, ask about the enforcement level; stories/use cases only refer to them (BABOK 10.47.4, 10.9; see `references/business-rules.md`).
