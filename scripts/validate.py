@@ -8,6 +8,7 @@ Checks, per skill folder:
   - relative paths such as `references/x.md`, `templates/x.md`, `scripts/x.py` and
     `<other-skill>/references/x.md` mentioned in any .md file of the skill exist
   - no absolute local home-directory paths in any text file
+  - a `## Conventions` section (heading and bullets) in SKILL.md, at most 12 lines, identical in every skill
 Repo-wide:
   - relative Markdown links in README.md and docs/*.md resolve
   - scripts/fin.py gives the expected NPV, ROI, IRR and payback on a fixed input
@@ -25,6 +26,7 @@ import re
 import subprocess
 import sys
 import tempfile
+from collections import Counter
 from pathlib import Path
 
 try:
@@ -42,6 +44,8 @@ SUBDIRS = "references|templates|scripts"
 PATH_RE = re.compile(r"`(?:([a-z0-9-]+)/)?((?:%s)/[A-Za-z0-9_./-]+\.[A-Za-z0-9]+)`" % SUBDIRS)
 LOCAL_PATH_RE = re.compile(r"(?<![\w.-])(/Users/|/home/)[A-Za-z0-9_.-]+")
 LINK_RE = re.compile(r"\]\(([^)#\s]+)(?:#[^)]*)?\)")
+CONVENTIONS_HEADING = "## Conventions"
+CONVENTIONS_MAX_LINES = 12
 TEXT_SUFFIXES = {".md", ".py", ".json", ".txt", ".yml", ".yaml"}
 
 FIN_INPUT = {
@@ -127,6 +131,42 @@ def check_skill_links(skill_dir, standalone):
                     " (works only when the whole set is installed)")
 
 
+def conventions_block(skill_dir):
+    """The `## Conventions` section of a SKILL.md: the heading and the bullets under it, or None."""
+    lines = (skill_dir / "SKILL.md").read_text(encoding="utf-8").splitlines()
+    if CONVENTIONS_HEADING not in lines:
+        return None
+    block = [CONVENTIONS_HEADING]
+    for line in lines[lines.index(CONVENTIONS_HEADING) + 1:]:
+        if line.strip() and not line.startswith("- "):
+            break
+        block.append(line.rstrip())
+    return "\n".join(block).strip()
+
+
+def check_conventions(skill_dirs):
+    """Every skill carries the same Conventions block; the odd ones out are reported."""
+    blocks = {}
+    for d in skill_dirs:
+        if not (d / "SKILL.md").is_file():
+            continue
+        block = conventions_block(d)
+        if block is None:
+            errors.append(f"{rel(d / 'SKILL.md')}: no '{CONVENTIONS_HEADING}' section")
+        else:
+            blocks[d] = block
+            if len(block.splitlines()) > CONVENTIONS_MAX_LINES:
+                errors.append(f"{rel(d / 'SKILL.md')}: Conventions block is longer than"
+                              f" {CONVENTIONS_MAX_LINES} lines")
+    if blocks:
+        common = Counter(blocks.values()).most_common()
+        top = max(n for _, n in common)
+        reference = sorted(b for b, n in common if n == top)[0]
+        for d, block in blocks.items():
+            if block != reference:
+                errors.append(f"{rel(d / 'SKILL.md')}: Conventions block differs from the other skills")
+
+
 def check_local_paths():
     files = [p for p in ROOT.rglob("*") if p.is_file() and p.suffix in TEXT_SUFFIXES
              and ".git" not in p.relative_to(ROOT).parts]
@@ -182,6 +222,7 @@ def main():
         check_frontmatter(d)
         check_references(d, standalone)
         check_skill_links(d, standalone)
+    check_conventions(skill_dirs)
     check_local_paths()
     check_doc_links()
     check_fin()

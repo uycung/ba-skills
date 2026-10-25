@@ -153,5 +153,46 @@ class Mutations(unittest.TestCase):
         self.check(add, None, args=("--standalone",), code=0)
 
 
+class Conventions(unittest.TestCase):
+    """The `## Conventions` block must be the same in every skill (both directions)."""
+
+    def check(self, mutate, expect, code):
+        with tempfile.TemporaryDirectory() as tmp:
+            repo = make_repo(tmp)
+            mutate(repo / "skills")
+            got, out = validate(repo)
+            self.assertEqual(got, code, out)
+            if expect:
+                self.assertRegex(out, expect)
+
+    def test_one_skill_with_a_different_block_fails_and_is_named(self):
+        self.check(lambda s: edit(s / "story-writer" / "SKILL.md", "never changes and is never reused", "never changes and is rarely reused"),
+                   r"ERROR skills/story-writer/SKILL\.md: Conventions block differs", 1)
+
+    def test_the_same_edit_in_every_skill_passes(self):
+        def edit_all(s):
+            for d in s.iterdir():
+                edit(d / "SKILL.md", "never changes and is never reused", "never changes and is never reused, even if deleted")
+        self.check(edit_all, None, 0)
+
+    def test_missing_block_fails(self):
+        def cut(s):
+            p = s / "nfr-writer" / "SKILL.md"
+            text = p.read_text(encoding="utf-8")
+            p.write_text(text[:text.index("## Conventions")], encoding="utf-8")
+        self.check(cut, r"ERROR skills/nfr-writer/SKILL\.md: no '## Conventions' section", 1)
+
+    def test_block_over_twelve_lines_fails(self):
+        def grow(s):
+            with open(s / "story-writer" / "SKILL.md", "a", encoding="utf-8") as f:
+                f.write("- extra\n" * 8)
+        self.check(grow, r"story-writer/SKILL\.md: Conventions block is longer than 12", 1)
+
+    def test_text_before_the_block_is_not_compared(self):
+        self.check(lambda s: edit(s / "requirements-review" / "SKILL.md", "\n## Conventions",
+                                  "\nOne extra sentence for this skill only.\n\n## Conventions"),
+                   None, 0)
+
+
 if __name__ == "__main__":
     unittest.main()
