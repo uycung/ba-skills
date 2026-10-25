@@ -27,4 +27,8 @@ Attributes, permitted values, retention, personal data (flagged for someone with
 ## 10. Verification and acceptance
 Verification method for each group of requirements; acceptance criteria; refer to the UAT plan.
 ## 11. Appendices
-Traceability matrix; glossary; open questions and what is missing; approval; change history.
+Traceability matrix; glossary; approval; change history.
+### What is still missing
+Open questions, gaps, and for each the person and the skill that can close it.
+### Ready for approval?
+Yes / No, with the blockers; if No, run `requirements-review` first.

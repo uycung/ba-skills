@@ -37,6 +37,9 @@ Embed or refer; state the purpose of each model.
 Phased plan, transition conditions, training, data.
 
 ## 10. Dependencies, assumptions, risks
-## 11. Open questions and what is missing
+## 11. What is still missing
+Open questions, gaps, and for each the person and the skill that can close it.
+### Ready for approval?
+Yes / No, with the blockers; if No, run `requirements-review` first.
 ## 12. Glossary
 ## 13. Approval and change history

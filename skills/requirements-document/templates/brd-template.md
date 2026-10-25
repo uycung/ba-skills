@@ -35,7 +35,10 @@ The options (including doing nothing), selection criteria, the recommended optio
 
 ## 10. Assumptions, constraints, dependencies
 ## 11. Risks
-## 12. Open questions and what is missing
+## 12. What is still missing
+Open questions, gaps, and for each the person and the skill that can close it.
+### Ready for approval?
+Yes / No, with the blockers; if No, run `requirements-review` first.
 ## 13. Glossary
 ## 14. Approval
 | Role | Person | Decision | Conditions | Date |
