@@ -43,11 +43,29 @@ NUMBER_WORDS = {w: n for w, n in zip(
     "two three four five six seven eight nine ten eleven twelve fifteen twenty thirty forty fifty sixty "
     "hundred thousand".split(), [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 15, 20, 30, 40, 50, 60, 100, 1000])}
 REF_NUMBER_RE = re.compile(r"(?i)\b(?:questions?|sections?|findings?|items?|rows?|points?|steps?|checks?|clauses?|"
-                           r"criteri(?:on|a)|tables?|lines?)\s+\d+(?:\.\d+)*|#\d+")
+                           r"criteri(?:on|a)|tables?|lines?|scenarios?|cases?|c\u00e2u h\u1ecfi|c\u00e2u)\s+\d+(?:\.\d+)*(?:\s*(?:-|to)\s*\d+(?:\.\d+)*)?|#\d+")
 CONCRETE_AMOUNT_RE = re.compile(r"\d+(?:[.,]\d+)?\s*(?:%|ms|s\b|sec|secs|seconds?|mins?|minutes?|hours?|days?|"
                                 r"giây|phút|giờ|ngày)", re.I)
 DASHES_RE = re.compile("[\u2010\u2011\u2012\u2013\u2212]")  # hyphen look-alikes: US\u201199 is the code US-99
 ISO_DATE_RE = re.compile(r"\b\d{4}-\d{2}-\d{2}\b")
+MONTH = (r"(?:Jan(?:uary)?|Feb(?:ruary)?|Mar(?:ch)?|Apr(?:il)?|May|Jun(?:e)?|Jul(?:y)?|Aug(?:ust)?|"
+         r"Sep(?:t(?:ember)?)?|Oct(?:ober)?|Nov(?:ember)?|Dec(?:ember)?)")
+EXAMPLE_DATA_RE = re.compile(
+    r"\b\d{1,2}:\d{2}(?::\d{2})?(?:\s?[ap]m\b)?"                                  # 09:00, 14:30, 9:00 am
+    r"|\b\d{1,2}(?:st|nd|rd|th)?\s+(?:of\s+)?" + MONTH + r"\b(?:,?\s+\d{4})?"     # 10 Nov, 3rd March 2027
+    r"|\b" + MONTH + r"\s+\d{1,2}(?:st|nd|rd|th)?\b(?:,?\s+\d{4})?"               # Nov 10, March 3rd
+    r"|\b\d+\s*(?:h|hours?)\s*\d{1,2}\s*(?:min|minutes?)\b"                         # "23 h 59 min" as a boundary example
+    r"|\b00\s*(?:minutes?|mins?|seconds?|secs?)\b")                                   # "24 hours 00 minutes"
+VARIABLE_STEP_RE = re.compile(r"\b[A-Za-z]\s?[-+]\s?\d{1,2}\b(?![\d:.])")  # N-1, N+1: a parameter, not a figure
+COUNTER_RESET_RE = re.compile(r"(?i)\b(?:resets?|resetting|counter|count)\b[^.\n]{0,30}?\b(?:to|is|at|=)\s*0\b")
+QUOTED_RE = re.compile(r'"[^"\n]*"|\u201c[^\u201d\n]*\u201d')
+GWT_RE = re.compile(r"\b(?:given|when|then)\b|^\s*(?:[-*]\s*)?(?:and|but)\b", re.I)
+# "F2", "Q4", "A1", "AC3", "AC 3": labels of findings, questions, assumptions and criteria the answer numbers itself
+LABEL_RE = re.compile(r"\b(?:[FQA]\d{1,3}|AC\s?\d{1,3}|P\d)\b")  # P1, P2: patient 1, patient 2
+PERCENTILE_RE = re.compile(r"(?i)\bp\d{2}(?:\.\d)?\b")  # p95 names a way to measure, it sets no value
+OWN_COUNT_RE = re.compile(r"(?i)\b\d+\s+(?:stories|story|user stories|ACs?|acceptance criteria|questions?|c\u00e2u h\u1ecfi|c\u00e2u)\b")  # "split into 4 stories"
+ZERO_PADDED_RE = re.compile(r"\b00\s*(?:minutes?|mins?|seconds?|secs?)\b")  # "24 h 00 min"
+VARIABLE_RANGE_RE = re.compile(r"\b\d+\s+to\s+[A-Za-z]\b(?:\s?[-+]\s?\d{1,2}\b)?")  # "attempts 1 to N-1"
 NUMBER_RE = re.compile(r"\d+(?:[.,]\d+)?")
 PATH_TOKEN_RE = re.compile(
     r"(?<![\w/.-])((?:[a-z0-9-]+/)?(?:references|templates|scripts)/[A-Za-z0-9_./-]*[A-Za-z0-9_])")
@@ -57,7 +75,19 @@ LOOKUP_FAILURE_RE = re.compile(
 NEGATION_RE = re.compile(r"(?i)\b(?:not|never|cannot|unable|without)\b|n't\b")
 HEAD_RE = re.compile(r"^\s{0,3}#{1,6}\s+(.*?)\s*#*\s*$")
 BOLD_LABEL_RE = re.compile(r"^\s*\*\*([^*]+?)(?::\*\*|\*\*\s*:)\s*(.*)$")
+BOLD_PAREN_RE = re.compile(r"^\s*\*\*([^*]+?)\*\*\s*\(([^()]*)\)\s*$")  # `**Acceptance criteria** (rule-list form)`
 BOLD_LINE_RE = re.compile(r"^\s*\*\*([^*]+?)\*\*\s*$")
+HEAD_NUMBER_RE = re.compile(r"^\s*(?:\d+(?:\.\d+)+[.)]?\s+|\d+[.)]\s*)")  # "3. Findings", "11.2 What is still missing"
+BOLD_RE = re.compile(r"(\*\*|__)(?=\S)([^\n]+?)(?<=\S)\1")
+ITALIC_STAR_RE = re.compile(r"(?<![\w*])\*(?=[^\s*])([^*\n]+?)(?<=[^\s*])\*(?![\w*])")
+ITALIC_UNDERSCORE_RE = re.compile(r"(?<![\w_])_(?=[^\s_])([^_\n]+?)(?<=[^\s_])_(?![\w_])")
+REQ_PREFIXES = {"US", "AC", "BR", "FR", "NFR", "TC", "UC", "REQ", "GOAL", "SR", "RV", "RR", "OQ", "GAP",
+                "ASM", "DEP", "EPIC", "UAT", "SYS", "BG"}
+EXAMPLE_MARKER_RE = re.compile(
+    r"(?i)(?:\b(?:such as|for example|for instance|like|including)\b|\be\.?g\.?(?=[\s,])|"
+    r"\bv\u00ed d\u1ee5(?: nh\u01b0)?\b|\bch\u1eb3ng h\u1ea1n(?: nh\u01b0)?\b)[^.;:!?\n]{0,60}$")
+# Section names that mean the same thing; the key is what the case file asks for.
+SECTION_ALIASES = {"questions needing an answer": ["open questions"]}
 BLOCK_START_RE = re.compile(r"^\s*(\||[-*+]\s|\d+[.)]\s)")
 SEPARATOR_RE = re.compile(r"^\s*\|?\s*:?-{3,}:?\s*(\|\s*:?-{3,}:?\s*)*\|?\s*$")
 VERDICT_WORDS = {"ready", "not ready", "conditional"}  # `**Conditional**: ...` is text, not a section
@@ -97,38 +127,110 @@ def rx(p, pattern, default="i"):
     return re.compile(pattern, flags_of(p.get("flags", default)))
 
 
-def title_key(title):
+def clean_title(title):
     t = re.sub(r"[*`]", "", title)
-    t = re.sub(r"^\s*\d+[.)]\s*", "", t)
-    return t.strip().rstrip(":").strip().lower()
+    t = HEAD_NUMBER_RE.sub("", t)  # "3. ", "11.2 " in front of the name
+    return t.strip().rstrip(":").strip()
 
 
-def split_sections(text):
-    """[(key, body)] in document order. A section starts at a Markdown heading, at a
-    bold label with a colon (`**Assumptions**: ...`) or at a line that is only bold."""
-    sections = []
+def title_key(title):
+    return clean_title(title).lower()
+
+
+def expand_cant(s):
+    """`can't be tested` is `cannot be tested`."""
+    return re.sub(r"(?i)\bcan['\u2019]t\b", "cannot", s)
+
+
+def strip_emphasis(s):
+    """`**As a** patient` reads as `As a patient`; list bullets (`* item`) and snake_case stay."""
+    s = BOLD_RE.sub(r"\2", s)
+    s = ITALIC_STAR_RE.sub(r"\1", s)
+    return ITALIC_UNDERSCORE_RE.sub(r"\1", s)
+
+
+def parse_sections(text):
+    """Sections in document order, as dicts. A section starts at a Markdown heading, at a bold
+    label with a colon (`**Assumptions**: ...`) or at a line that is only bold. Sections nest:
+    a deeper heading, or a bold label inside a heading, does not end the section it sits in
+    (`**High**` under `## Gaps` is part of Gaps); a heading of the same or a higher level does.
+    A bold label ends the previous bold label but not the heading around it."""
+    nodes, stack = [], []
+
+    def open_node(level, title, first):
+        while stack and stack[-1]["level"] >= level:
+            stack.pop()
+        node = {"level": level, "title": clean_title(title), "key": title_key(title), "lines": []}
+        if first:
+            node["lines"].append(first)
+        nodes.append(node)
+        return node
+
     for line in text.splitlines():
         m = HEAD_RE.match(line)
         if m:
-            sections.append([title_key(m.group(1)), []])
-            continue
-        m = BOLD_LABEL_RE.match(line)
-        if m and title_key(m.group(1)) not in VERDICT_WORDS:
-            sections.append([title_key(m.group(1)), [m.group(2)] if m.group(2) else []])
-            continue
-        m = BOLD_LINE_RE.match(line)
-        if m and title_key(m.group(1)) not in VERDICT_WORDS:
-            sections.append([title_key(m.group(1)), []])
-            continue
-        if sections:
-            sections[-1][1].append(line)
-    return [(k, "\n".join(b)) for k, b in sections]
+            level = len(line.strip()) - len(line.strip().lstrip("#"))
+            node = open_node(level, m.group(1), None)
+        else:
+            m = BOLD_LABEL_RE.match(line)
+            if m and title_key(m.group(1)) not in VERDICT_WORDS:
+                node = open_node(7, m.group(1), m.group(2) or None)
+            else:
+                m = BOLD_LINE_RE.match(line) or BOLD_PAREN_RE.match(line)
+                if m and title_key(m.group(1)) not in VERDICT_WORDS:
+                    node = open_node(7, m.group(1), m.group(2) if m.lastindex == 2 else None)
+                else:
+                    for n in stack:
+                        n["lines"].append(line)
+                    continue
+        for n in stack:  # the new section's own first line belongs to the sections around it
+            n["lines"].append(line)
+        stack.append(node)
+    return nodes
+
+
+def split_sections(text):
+    """[(key, body)] in document order; a body includes the sections nested inside it."""
+    return [(n["key"], "\n".join(n["lines"])) for n in parse_sections(text)]
+
+
+def name_matches(key, name):
+    """`ac` is the section `AC` or `AC: ...`, not `ACC-01 Log in`; a longer title may follow the name."""
+    return key == name or (key.startswith(name) and not key[len(name)].isalnum())
+
+
+def name_variants(names):
+    keys = []
+    for n in as_list(names):
+        keys.append(n.lower())
+        keys.extend(SECTION_ALIASES.get(n.lower(), []))
+    return keys
 
 
 def find_sections(text, names):
-    keys = [n.lower() for n in as_list(names)]
-    return [(i, body) for i, (key, body) in enumerate(split_sections(text))
-            if any(key == k or key.startswith(k) for k in keys)]
+    """[(position, body)] of the sections with one of these names. The rest of the title after
+    the name counts as text of the section (`## Verdict: Not ready`, `## NFRs found (hand off
+    to nfr-writer)`). A section inside another matching section is not returned twice."""
+    keys = name_variants(names)
+    found, covered = [], []
+    nodes = parse_sections(text)
+    for i, n in enumerate(nodes):
+        k = next((k for k in keys if name_matches(n["key"], k)), None)
+        if k is None:
+            continue
+        # nested sections sit after this one in `nodes`; skip them when this one already holds them
+        if any(a <= i <= b for a, b in covered):
+            continue
+        end = i
+        for j in range(i + 1, len(nodes)):
+            if nodes[j]["level"] > n["level"]:
+                end = j
+            else:
+                break
+        covered.append((i, end))
+        tail = n["title"][len(k):].lstrip(" :–—-") if len(n["title"]) > len(k) else ""
+        found.append((i, "\n".join(([tail] if tail else []) + n["lines"])))
+    return found
 
 
 def get_section(text, names):
@@ -192,6 +294,21 @@ def find_ids(s):
     return ID_RE.findall(norm_dashes(s))
 
 
+def example_ids(s, req_prefixes):
+    """Codes that the text offers as an example (`such as AES-256`, `e.g. UTF-8`). A code with a
+    requirement-style prefix (US, TC, GOAL, ...) is never an example: `for example TC-01` is
+    still a made-up test case."""
+    s = norm_dashes(s)
+    out = set()
+    for m in ID_RE.finditer(s):
+        if m.group(0).split("-")[0] in req_prefixes:
+            continue
+        line_start = s.rfind("\n", 0, m.start()) + 1
+        if EXAMPLE_MARKER_RE.search(s[max(line_start, m.start() - 80):m.start()]):
+            out.add(m.group(0))
+    return out
+
+
 def expand_ranges(s):
     """`US-01 to US-05` also counts as the codes in between."""
     out = set()
@@ -201,17 +318,45 @@ def expand_ranges(s):
     return out
 
 
-def clean_for_numbers(s):
+def example_data_removed(s):
+    """Dates and clock times written as example data inside Given/When/Then are not figures the
+    answer made up. A line counts when it has Given, When or Then, or sits under a less indented
+    line that has one (the bullets under `- Then:`). The same date or time elsewhere still counts."""
+    out, stack = [], []  # stack of (indent, inside Given/When/Then)
+    for line in s.splitlines():
+        if not line.strip():
+            out.append(line)
+            continue
+        indent = len(line) - len(line.lstrip())
+        while stack and stack[-1][0] >= indent:
+            stack.pop()
+        inside = bool(GWT_RE.search(line)) or bool(stack and stack[-1][1])
+        stack.append((indent, inside))
+        out.append(EXAMPLE_DATA_RE.sub(" ", line) if inside else line)
+    return "\n".join(out)
+
+
+def clean_for_numbers(s, examples=False):
     s = ISO_DATE_RE.sub(" ", norm_dashes(s))
+    if examples:
+        s = example_data_removed(s)
     s = ID_RE.sub(" ", s)
     s = REF_NUMBER_RE.sub(" ", s)
+    s = LABEL_RE.sub(" ", s)
+    s = VARIABLE_RANGE_RE.sub(" ", s)
+    s = VARIABLE_STEP_RE.sub(" ", s)
+    s = COUNTER_RESET_RE.sub(" ", s)
+    s = PERCENTILE_RE.sub(" ", s)
+    s = OWN_COUNT_RE.sub(" ", s)
+    s = ZERO_PADDED_RE.sub(" ", s)
     s = re.sub(r"https?://\S+", " ", s)
-    return re.sub(r"(?m)^\s*(?:#+\s*)?\d+[.)]\s", " ", s)
+    s = re.sub(r"(?m)^\s*\|\s*\d+\s*\|", "|", s)  # row numbers in the first column of a table
+    return re.sub(r"(?m)^\s*(?:#+\s*)?(?:\d+(?:\.\d+)+[.)]?|\d+[.)])\s", " ", s)
 
 
-def number_keys(s):
+def number_keys(s, examples=False):
     keys = {str(float(NUMBER_WORDS[w.lower()])) for w in NUMBER_WORD_RE.findall(s)}
-    for n in NUMBER_RE.findall(clean_for_numbers(s)):
+    for n in NUMBER_RE.findall(clean_for_numbers(s, examples)):
         keys.add(str(float(n.replace(",", "."))))
     return keys
 
@@ -231,11 +376,11 @@ def scope(ctx, p):
     """(text to check, error). `section` limits the text; `section_optional` tolerates absence."""
     sec = p.get("section")
     if sec is None:
-        return ctx.text, None
+        return expand_cant(strip_emphasis(ctx.text)), None
     body = get_section(ctx.text, sec)
     if body is None:
         return ("", None) if p.get("section_optional") else (None, f"section {sec} not found")
-    return body, None
+    return expand_cant(strip_emphasis(body)), None
 
 
 # ---------------------------------------------------------------------- checks
@@ -274,6 +419,12 @@ def chk_match(ctx, p):
     return True, ""
 
 
+def sentence_start(body, pos):
+    """Start of the sentence that holds `pos`; a full stop inside a code (AC-01.1) does not end it."""
+    cut = [m.end() for m in re.finditer(r"[!?\n]|\.\s", body[:pos])]
+    return cut[-1] if cut else 0
+
+
 def chk_not_match(ctx, p):
     body, err = scope(ctx, p)
     if err:
@@ -282,6 +433,9 @@ def chk_not_match(ctx, p):
         if p.get("unless_negated"):  # "I cannot tell you it passes" is a refusal, not a claim
             start = max(body.rfind(c, 0, m.start()) for c in ".!?\n") + 1
             if NEGATION_RE.search(body[start:m.start()]):
+                continue
+        if p.get("unless_about_items"):  # "AC-01.1 passes the checklist" says something about one item
+            if find_ids(body[sentence_start(body, m.start()):m.start()]):
                 continue
         return False, f"forbidden text found: {m.group(0)[:60]!r}"
     return True, ""
@@ -292,7 +446,8 @@ def chk_ids_subset(ctx, p):
     if err:
         return False, err
     allowed = set(find_ids(ctx.sources)) | set(p.get("extra_allowed", []))
-    new = sorted(set(find_ids(body)) - allowed)
+    req_prefixes = REQ_PREFIXES | {i.split("-")[0] for i in allowed}
+    new = sorted(set(find_ids(body)) - allowed - example_ids(body, req_prefixes))
     if not new:
         return True, ""
     if p.get("new_ids") == "need_marker":
@@ -417,7 +572,7 @@ def chk_numbers(ctx, p):
     if p.get("column"):
         body = "\n".join(column_cells(body, p["column"]))
     allowed = number_keys(ctx.sources) | {str(float(a)) for a in p.get("allow", [])}
-    invented = sorted(number_keys(body) - allowed, key=float)
+    invented = sorted(number_keys(body, examples=True) - allowed, key=float)
     return (False, "numbers not in the input: " + ", ".join(invented)) if invented else (True, "")
 
 
@@ -430,6 +585,7 @@ def chk_no_vague_ac(ctx, p):
     for b in blocks(body):
         if CONCRETE_AMOUNT_RE.search(re.sub(r"^\s*\d+[.)]\s", "", b)):
             continue
+        b = QUOTED_RE.sub(" ", b)  # a quoted message ("Không tìm thấy đơn phù hợp") is wording, not a requirement
         for w in words:
             if re.search(r"(?<!\w)" + re.escape(w) + r"(?!\w)", b, re.I):
                 bad.append(f"{w!r} in {b[:50]!r}")
@@ -532,7 +688,8 @@ def chk_distinct_terms(ctx, p):
 
 def chk_link_requires_marker(ctx, p):
     marker = re.compile(p["marker"], re.I)
-    linked = [b for b in blocks(ctx.text) if all(re.search(a, b, re.I) for a in p["anchor"])]
+    linked = [b for b in blocks(ctx.text) if all(re.search(a, b, re.I) for a in p["anchor"])
+              and not b.rstrip().endswith("?")]  # a question to confirm is not a stated link
     bad = [b[:60] for b in linked if not marker.search(b)]
     return (False, "link stated without a basis marker: " + " | ".join(bad)) if bad else (True, "")
 

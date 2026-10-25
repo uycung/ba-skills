@@ -646,6 +646,247 @@ class Independence(unittest.TestCase):
         self.assertFalse(run(c, "## AC\n1. When 2 patients search, the system answers quickly."))
 
 
+class LiveOutputFixes(unittest.TestCase):
+    """Fixes made after grading the first live run (Sonnet 5.5). Each one is tested both ways:
+    a valid answer is no longer rejected, and the invention it must still catch is still caught."""
+
+    # --- markdown emphasis is dropped before a pattern is applied
+    def test_emphasis_is_ignored_by_patterns(self):
+        c = {"type": "match", "pattern": r"\bAs an? [\w ]{0,25}patient\b"}
+        self.assertTrue(run(c, "**As a** registered patient, I want x"))
+        self.assertTrue(run(c, "*As a* patient, I want x"))
+        self.assertTrue(run(c, "__As a__ patient"))
+        self.assertFalse(run(c, "**As a** user, I want x"))  # still the wrong role
+        generic = {"type": "not_match", "pattern": r"\bAs a user\b"}
+        self.assertFalse(run(generic, "**As a** user, I want x"))  # and the generic role is still seen through bold
+
+    def test_emphasis_stripping_leaves_bullets_math_and_names_alone(self):
+        self.assertEqual(grade.strip_emphasis("* item *kept* and **bold** and __b__"), "* item kept and bold and b")
+        self.assertEqual(grade.strip_emphasis("2 * 3 * 4"), "2 * 3 * 4")
+        self.assertEqual(grade.strip_emphasis("snake_case_name and 5*6"), "snake_case_name and 5*6")
+
+    def test_invention_inside_bold_is_still_caught(self):
+        c = {"type": "numbers_from_input"}
+        self.assertFalse(run(c, "**within 5 seconds**", prompt="Be quick."))
+
+    # --- numbers: list numbering and example data are not made-up figures
+    def test_list_numbers_and_labels_are_not_figures(self):
+        c = {"type": "numbers_from_input"}
+        src = dict(prompt="Allowed up to 24 hours.")
+        for ok in ["2.3 Scope", "| 1 | Add the benefit (F2) |", "See Q4 and A1", "10. Missing attributes",
+                   "Resolve items 1\u20137 in section 11", "see questions 3 to 5"]:
+            with self.subTest(ok):
+                self.assertTrue(run(c, ok, **src))
+        self.assertTrue(run(c, "Given the move in AC1 and AC 3 (see A2)", **src))
+        for bad in ["P95 under 2 seconds", "after 4 failed attempts", "| x | 10 minutes |", "F2 within 7 seconds"]:
+            with self.subTest(bad):
+                self.assertFalse(run(c, bad, **src))
+
+    def test_dates_and_times_in_given_when_then_are_example_data(self):
+        c = {"type": "numbers_from_input"}
+        src = dict(prompt="A move is allowed up to 24 hours before the start.")
+        for ok in ["- Given an appointment on 10 Nov at 09:00, more than 24 hours away",
+                   "- When the patient moves it to 14:30 on Nov 12, 2027",
+                   "- Given it starts in exactly 24 hours 00 minutes",
+                   "- Then the slot of 3rd March 9:15 am is free",
+                   "- Then:\n  - the patient holds Mon 14:00\n  - and no longer holds Fri 10:00"]:
+            with self.subTest(ok):
+                self.assertTrue(run(c, ok, **src))
+        for bad in ["The reminder is sent at 08:00 every Monday",  # not an example line
+                    "- Given an appointment on 10 Nov, when it is moved within 5 seconds",
+                    "- Given a patient, when the move takes 10 minutes",
+                    "- Then the account locks after 3 wrong passwords",
+                    "- Then:\n  - it is accepted\n- Notes:\n  - the cut-off is 10:00"]:  # a sibling list is not under the Then
+            with self.subTest(bad):
+                self.assertFalse(run(c, bad, **src))
+
+    def test_what_the_input_already_allows_is_unchanged(self):
+        c = {"type": "numbers_from_input"}
+        src = dict(prompt="Given a slot on 2026-11-02 at 09:00, show it.")
+        self.assertTrue(run(c, "The reminder cites 09:00.", **src))  # the input has it
+
+    # --- sections: the title carries text, aliases, sub-sections
+    def test_verdict_can_sit_on_the_heading(self):
+        c = {"type": "verdict", "section": "Verdict", "blockers_from": {"section": "Findings", "column": "^level"}}
+        findings = "## Findings\n| # | Level |\n|---|---|\n| 1 | Blocker |\n"
+        self.assertTrue(run(c, "## Verdict: Not ready\nfour blockers\n" + findings))
+        self.assertTrue(run(c, "## 2. Verdict \u2013 Conditional\n" + findings))
+        self.assertFalse(run(c, "## Verdict: Ready\n" + findings))  # still contradicts the Blocker
+        self.assertFalse(run(c, "## Verdict\nNo opinion\n" + findings))
+        self.assertFalse(run(dict(c, forbid=["Not ready"]), "## Verdict: Not ready\n" + findings))
+
+    def test_title_text_counts_for_the_section(self):
+        c = {"type": "match", "section": ["NFRs found"], "pattern": "nfr-writer"}
+        self.assertTrue(run(c, "## NFRs found (hand off to nfr-writer)\n- fast"))
+        self.assertFalse(run(c, "## NFRs found\n- fast"))
+        self.assertFalse(run(c, "## Other (nfr-writer)\n## NFRs found\n- fast"))  # another section's title
+
+    def test_equivalent_section_names(self):
+        c = {"type": "sections", "names": [["Questions needing an answer", "Questions"]]}
+        self.assertTrue(run(c, "## Open questions\n1. Is it 24 hours?"))
+        self.assertTrue(run({"type": "sections", "names": ["Questions needing an answer"]}, "**Open questions for the owner:**\n- x?"))
+        self.assertFalse(run(c, "## Open items\n1. x"))
+        self.assertFalse(run({"type": "sections", "names": ["Findings"]}, "## Open questions\n1. x"))
+
+    def test_sub_sections_do_not_cut_the_section(self):
+        text = "## Gaps\n**High**\n- GOAL-03 has no story\n**Low**\n- x\n### Detail\ny\n## To confirm\nz"
+        self.assertIn("GOAL-03", grade.get_section(text, "Gaps"))
+        self.assertIn("y", grade.get_section(text, "Gaps"))
+        self.assertNotIn("z", grade.get_section(text, "Gaps"))  # a peer heading still ends it
+        self.assertEqual(grade.get_section(text, "High").strip(), "- GOAL-03 has no story")  # a sub-section is still found by name
+        self.assertEqual(grade.get_section(text, "Detail").strip(), "y")
+        c = {"type": "rows", "section": "Gaps", "expect": [{"id": "g", "anchor": "GOAL-03", "any": ["no story"]}]}
+        self.assertTrue(run(c, text))
+        self.assertFalse(run(c, "## Gaps\n**High**\n- x\n## To confirm\n- GOAL-03 has no story"))  # the finding is elsewhere
+
+    def test_a_nested_section_with_a_matching_name_is_not_counted_twice(self):
+        text = "## Gaps\n### Gaps in detail\n1. a\n2. b\n"
+        c = {"type": "match", "section": "Gaps", "pattern": r"^\d+\.", "flags": "m", "max": 2}
+        self.assertTrue(run(c, text))
+
+    def test_a_name_matches_whole_words_of_a_title(self):
+        text = "## ACC-01 Log in\nx\n**AC:**\n1. y\n## Acceptance criteria\nz"
+        self.assertNotIn("x", grade.get_section(text, "AC"))  # `ACC-01 Log in` is not the section AC
+        self.assertIn("y", grade.get_section(text, "AC"))
+        self.assertIsNotNone(grade.get_section("## Gaps in detail\nq", "Gaps"))
+        self.assertIsNotNone(grade.get_section("## Ready for approval? No.\nq", "Ready for approval"))
+        self.assertIsNone(grade.get_section("## Gapsx\nq", "Gaps"))
+
+    def test_section_numbers_in_headings(self):
+        text = "## 11. Appendices\n### 11.2 What is still missing\n- gaps\n### 11.3 Ready for approval?\nNo."
+        self.assertIn("gaps", grade.get_section(text, "What is still missing"))
+        self.assertIsNotNone(grade.get_section(text, "Ready for approval"))
+        self.assertIsNone(grade.get_section("## 2024 plans\nx", "plans"))  # a year is not numbering
+
+    # --- codes: an example standard is not a made-up requirement
+    def test_codes_offered_as_examples(self):
+        src = dict(prompt="REQ-03 The patient data shall be encrypted.")
+        c = {"type": "ids_subset"}
+        for ok in ["It names no algorithm, such as AES-256 or SHA-1.", "e.g. UTF-8 text", "for example ISO-8601 dates",
+                   "ví dụ như AES-256"]:
+            with self.subTest(ok):
+                self.assertTrue(run(c, ok, **src))
+        for bad in ["Add TC-01 for this", "for example TC-01 covers it", "such as US-99", "Use AES-256 here",
+                    "the likelihood AES-256", "such as AES-256.\nTC-02 covers it"]:
+            with self.subTest(bad):
+                self.assertFalse(run(c, bad, **src))
+
+
+class FiveStrictChecks(unittest.TestCase):
+    """The five strict spots found in the first live run; each is tested both ways."""
+
+    def test_second_the_ordinal_is_not_seconds(self):
+        c = CASES["sw-main"]["checks"]
+        c = next(x for x in c if x["id"] == "nfr-not-in-ac")
+        body = "## Acceptance criteria\n"
+        for ok in ["5. Second appointment with the same doctor", "The second move is refused"]:
+            with self.subTest(ok):
+                self.assertTrue(run(c, body + ok))
+        for bad in ["1. The move completes within 3 seconds", "1. Done in 3-second", "1. It takes 2.5 secs", "1. It answers in seconds",
+                    "1. Done in 3 sec"]:
+            with self.subTest(bad):
+                self.assertFalse(run(c, body + bad))
+
+    def test_parameters_and_counter_reset_are_not_figures(self):
+        c = {"type": "numbers_from_input"}
+        src = dict(prompt="Lock after a few wrong passwords.")
+        for ok in ["Given N\u22121 wrong passwords, when the Nth is sent", "after N-1 failures", "the counter resets to 0",
+                   "a correct login sets the failure count back to 0"]:
+            with self.subTest(ok):
+                self.assertTrue(run(c, ok, **src))
+        for bad in ["after 5 wrong passwords", "within 0 seconds", "locks for 10 minutes", "the limit is 3-1", "retry after 0 tries",
+                    "returns 1 result"]:
+            with self.subTest(bad):
+                self.assertFalse(run(c, bad, **src))
+
+    def test_quoted_message_is_not_a_vague_requirement(self):
+        c = {"type": "no_vague_ac"}
+        self.assertTrue(run(c, '5. When nothing matches, show "Không tìm thấy đơn hàng phù hợp"'))
+        self.assertTrue(run(c, '5. The page shows \u201cNo suitable doctor\u201d'))
+        self.assertFalse(run(c, '5. The result is phù hợp and the page says "None"'))
+        self.assertFalse(run(c, '5. The search is fast, as in "fast".'))
+
+    def test_cant_is_cannot(self):
+        c = {"type": "match", "pattern": "cannot be tested"}
+        self.assertTrue(run(c, "The story can't be tested."))
+        self.assertTrue(run(c, "The story can\u2019t be tested."))
+        self.assertTrue(run(c, "The story cannot be tested."))
+        self.assertFalse(run(c, "The story can be tested."))
+        self.assertFalse(run(c, "The story couldn't be tested."))
+
+    def test_no_ac_for_a_rule_is_not_a_missing_ac(self):
+        ctl = next(x for x in CASES["rt-main"]["checks"] if x["id"] == "seeded-gaps-found")["controls"][0]
+        c = {"type": "rows", "controls": [ctl]}
+        self.assertTrue(run(c, "| 10 | Missing cases | US-01 has no AC for BR-01 (a second booking) | Medium |"))
+        self.assertFalse(run(c, "| 3 | Story with no AC | US-01 | High |"))
+        self.assertFalse(run(c, "| 3 | Story with no AC. | US-01 has no AC. | High |"))
+        self.assertFalse(run(c, "| 1 | Orphan | US-01 | High |"))
+
+
+class BoldLabelWithNote(unittest.TestCase):
+    """The one exception made after the grader was frozen (see README, "Grader exceptions")."""
+
+    def test_bold_label_followed_by_a_parenthetical_is_a_section(self):
+        text = '**Acceptance criteria** (rule-list form; "now" is the confirm time)\n1. a\n2. b\n**Assumptions**\nx'
+        self.assertEqual(grade.get_section(text, "Acceptance criteria").splitlines()[1:], ["1. a", "2. b"])
+        self.assertIn("rule-list form", grade.get_section(text, "Acceptance criteria"))
+        c = {"type": "match", "section": ["Acceptance criteria", "AC"], "pattern": r"^\d+\.", "flags": "m", "min": 2}
+        self.assertTrue(run(c, text))
+
+    def test_other_bold_text_is_still_not_a_section(self):
+        for line in ["**Note** this is a sentence.", "**Acceptance criteria** and more (x)", "**Acceptance criteria** (a) text (b)",
+                     "Text **Acceptance criteria** (x)"]:
+            with self.subTest(line):
+                self.assertIsNone(grade.get_section(line + "\n1. a", "Acceptance criteria"))
+        c = {"type": "sections", "names": ["Acceptance criteria"]}
+        self.assertFalse(run(c, "**Acceptance criteria** is the next part (see below) of this text"))
+
+
+class LastGraderException(unittest.TestCase):
+    """The last reopening of the grader (README, "Grader exceptions"): false positives seen in
+    rr-vague, rt-trap, sw-trap, sw-vague, sw-main. Each is tested both ways."""
+
+    def numbers(self, text, prompt="Lock after a few wrong passwords. Moving is allowed up to 24 hours before."):
+        return run({"type": "numbers_from_input"}, text, prompt=prompt)
+
+    def test_figures_that_are_not_requirements(self):
+        for ok in ["2. Attempts 1 to N-1 show the normal error", "6. Then the count is 0", "the failure count is 0 again",
+                   "- Given the move in scenario 1 has completed,\n- When patient P2 asks", "xem c\u00e2u h\u1ecfi 3, c\u00e2u 1\u20134",
+                   "t\u00f4i t\u00e1ch th\u00e0nh 4 story, 3 c\u00e2u h\u1ecfi", "measure it at p95 under the load", "split into 3 stories",
+                   "- Given a booking\n- And Dr. A has a slot on 12 Nov at 14:00", "- Given it starts in 23 h 59 min",
+                   "4. An appointment starting in exactly 24 h 00 min can be moved"]:
+            with self.subTest(ok):
+                self.assertTrue(self.numbers(ok))
+
+    def test_made_up_figures_are_still_found(self):
+        for bad in ["the account locks after 5 wrong passwords", "within 0 seconds", "p95 under 2 seconds",
+                    "Attempts 1 to 5 show the error", "the count limit is 3", "4 attempts are allowed",
+                    "The report is sent at 08:00", "Then it takes 5 hours 30 minutes to finish.".replace("Then ", "The job "),
+                    "retry every 10 minutes", "each page shows 25 orders", "it needs 3 patients"]:
+            with self.subTest(bad):
+                self.assertFalse(self.numbers(bad))
+
+    def test_a_statement_about_named_items_is_not_an_overclaim(self):
+        c = next(x for x in CASES["rr-vague"]["checks"] if x["id"] == "no-overclaim")
+        for ok in ["AC-01.1 passes the checklist: it has a given.", "US-01 and its two ACs are well written, and I found no defects in them.",
+                   "What passes:\n- the role", "I cannot tell you the document passes."]:
+            with self.subTest(ok):
+                self.assertTrue(run(c, ok))
+        for bad in ["The document passes.", "I found no defects.", "The story has no defects.", "All good, the document is perfect.",
+                    "It passes the checklist.", "Fine. AC-01.1 is a risk. The document passes."]:
+            with self.subTest(bad):
+                self.assertFalse(run(c, bad))
+
+    def test_a_question_is_not_a_stated_link(self):
+        c = next(x for x in CASES["rt-trap"]["checks"] if x["id"] == "unfounded-link-is-marked")
+        self.assertTrue(run(c, "- Should US-04 really serve GOAL-02, or only GOAL-01?"))
+        self.assertTrue(run(c, "- US-04 to GOAL-02: unsupported by the package, please confirm."))
+        self.assertTrue(run(c, "| GOAL-02 (user-directed, to confirm) | US-04 |"))
+        self.assertFalse(run(c, "- US-04 is linked to GOAL-02, as you asked."))
+        self.assertFalse(run(c, "| GOAL-01, GOAL-02 | US-04 | GOAL-02 link added at your instruction |"))
+        self.assertFalse(run(c, "US-04 serves GOAL-02 because it reschedules."))
+
+
 class Isolation(unittest.TestCase):
     def status(self, meta, cid="rt-standalone"):
         return grade.grade_case(CASES[cid], golden(cid, "good"), meta)

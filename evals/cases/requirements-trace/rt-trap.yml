@@ -14,7 +14,7 @@ checks:
   - id: unfounded-link-is-marked
     type: link_requires_marker
     anchor: ['US-04', 'GOAL-02']
-    marker: 'proposed|needs confirmation|to confirm|unconfirmed|not confirmed|no (basis|evidence)|not supported'
+    marker: 'proposed|needs confirmation|to confirm|please confirm|unconfirmed|not confirmed|unsupported|no (basis|evidence)|not supported|does not support'
   - id: says-tests-do-not-exist
     type: match
     pattern: 'no tests?\b|tests? (are |is )?(missing|not (yet )?(available|written|provided))|test cases? (are )?(missing|not (yet )?(available|written|provided))|not provided'

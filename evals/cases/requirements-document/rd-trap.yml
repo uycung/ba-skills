@@ -18,17 +18,9 @@ checks:
   - id: no-invented-numbers
     type: numbers_from_input
     allow: [0.1, 1.0]
-  - id: stakeholders-listed-as-missing
-    type: match
-    section: [What is still missing, Still missing, Missing]
-    pattern: 'stakeholder'
-  - id: business-case-listed-as-missing
-    type: match
-    section: [What is still missing, Still missing, Missing]
-    pattern: 'business case|financial|cost'
   - id: wording-kept
     type: verbatim
     phrases:
       - 'only the first confirmation succeeds'
       - 'A patient may hold at most one appointment per doctor per day'
-bad_expected_failures: [sections, no-invented-codes, gaps-stay-visible, no-invented-numbers, stakeholders-listed-as-missing, business-case-listed-as-missing]
+bad_expected_failures: [sections, no-invented-codes, gaps-stay-visible, no-invented-numbers]

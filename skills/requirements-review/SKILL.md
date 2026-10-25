@@ -1,6 +1,6 @@
 ---
 name: requirements-review
-description: "Review the quality of requirements documents (stories, FRs, use cases, NFRs, rules, models, PRDs) per BABOK: check they are written correctly (verify) and meet the need (validate), return a findings report with severity and a ready-to-approve verdict; use before asking for approval or handing over to dev/testers, or to plan a review session."
+description: "Review the quality of the wording of requirements documents (stories, AC, FRs, use cases, NFRs, rules, models, PRDs) per BABOK: check they are written correctly (verify) and meet the need (validate), and return a findings report with severity and a ready-to-approve verdict. Use before asking for approval or handing over to dev/testers, or to plan a review session, including when the user also asks you to fix the text or to confirm that it passes (it reports findings and proposals; it does not rewrite or approve). Links and coverage between items belong to requirements-trace."
 ---
 
 # Requirements Review
@@ -13,12 +13,14 @@ Framework from BABOK v3: Verify Requirements (7.2), Validate Requirements (7.3),
 Always say which question the report is answering. Final quality is decided by the stakeholders (7.2.2): the skill only points out where the risks are.
 
 ## Hard rules
-1. **Every finding points to the exact sentence/section/code at fault**, names the characteristic violated, why it is a problem, and how to fix it. No vague remarks like "not clear".
-2. **Never change business content yourself.** You may propose rewording; where information is missing, turn it into a question with someone to answer it; do not fill in numbers or guess rules.
+1. **Every finding points to the exact sentence/section/code at fault**, names the characteristic violated, why it is a problem, and how to fix it. No vague remarks like "not clear". **Every row of the Findings table gives a code or a quotation in the Item column.** A remark about the whole document (no out-of-scope note, no priorities, no glossary) goes in its own section "Document-level notes", outside the table.
+2. **Never change business content yourself.** You may propose rewording; where information is missing, turn it into a question with someone to answer it; do not fill in numbers or guess rules. **Never write new acceptance criteria or stories**, not even a skeleton with placeholders, and not when the user asks: for a missing AC, state what is missing and ask; send the writing to `story-writer`.
 3. **Distinguish certain defects from suspicions.** Certain defects: self-contradiction within the document, a missing mandatory field, a vague word with no criterion. Suspicions: need confirmation from someone who knows the business; record as "suspicion".
+   The Type column of the findings table holds only **Defect** or **Suspicion**. "Suggestion" is a level, never a type.
 4. **The severity levels are the skill's convention** (not BABOK's): Blocker (cannot be built/tested/approved without a fix), Should fix (causes misunderstanding or rework), Suggestion (improvement). State the criteria for choosing the level.
-5. A verdict at the end of the report: **Ready / Conditional / Not ready** for the next step (validate, approve, or handing to the team), with specific conditions.
-6. Never claim "the document passes" just because no defects were found: state the scope that was checked (which items, which characteristics) and what could not be checked for lack of information.
+5. **Do not turn an item that meets the checklist into a finding.** Raise a finding only for a characteristic that is violated in the text. An item that passes gets no Blocker or Should fix; a case the item never claimed to cover (other error paths, other stories) is a question or at most a Suggestion.
+6. A verdict at the end of the report: **Ready / Conditional / Not ready** for the next step (validate, approve, or handing to the team), with specific conditions.
+7. Never claim "the document passes" just because no defects were found: state the scope that was checked (which items, which characteristics) and what could not be checked for lack of information.
 
 ## Process
 1. **Identify**: the kind of work product (story, use case, NFR, model, whole PRD), the review objective (find defects, check standards, confirm completeness and correctness, consensus, problem solving, education: 10.37.3), the level of formality. Ask at most 3 questions if missing: who uses this document, whether the team has a glossary/standard templates, where the business goal and scope are.
