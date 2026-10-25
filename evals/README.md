@@ -93,6 +93,11 @@ For a standalone case only the named skill may be installed. A temporary folder 
 
 So the grader does not assume isolation. A standalone result is **pass** only when `OUTDIR/<case-id>.meta.json` holds `{"loaded_skills": [...]}` from the runner and no other suite skill is in it; with no usable record (missing, unreadable, wrong shape) it is **unverified**; with another suite skill loaded, or without the skill under test in the record, it **fails**. See "Exit codes" below. A live runner must produce that record, or the standalone results stay unverified.
 
+## Grader exceptions and case changes
+
+- **Frozen grader.** After the first live run the grader was frozen so that before/after numbers stay comparable. It was reopened once: a bold label followed only by a parenthetical (`**Acceptance criteria** (rule-list form; ...)`) now starts a section. Other bold text with a sentence after it still does not. It is frozen again.
+- **rd-main and rd-trap**: the checks `missing-stakeholders-listed` / `stakeholders-listed-as-missing` and `missing-business-case-listed` / `business-case-listed-as-missing` were removed. These cases ask for a PRD for the development team; `templates/prd-template.md` has no stakeholder or business-case section (those belong to the BRD), so a PRD that does not list them as missing is correct. The goldens still pass and `bad_expected_failures` no longer names them.
+
 ## Limits
 
 - Automatic checks are necessary, not sufficient. A reply can pass them and still be poor; that is what `RUBRIC.md` is for.

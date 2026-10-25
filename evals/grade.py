@@ -70,6 +70,7 @@ LOOKUP_FAILURE_RE = re.compile(
 NEGATION_RE = re.compile(r"(?i)\b(?:not|never|cannot|unable|without)\b|n't\b")
 HEAD_RE = re.compile(r"^\s{0,3}#{1,6}\s+(.*?)\s*#*\s*$")
 BOLD_LABEL_RE = re.compile(r"^\s*\*\*([^*]+?)(?::\*\*|\*\*\s*:)\s*(.*)$")
+BOLD_PAREN_RE = re.compile(r"^\s*\*\*([^*]+?)\*\*\s*\(([^()]*)\)\s*$")  # `**Acceptance criteria** (rule-list form)`
 BOLD_LINE_RE = re.compile(r"^\s*\*\*([^*]+?)\*\*\s*$")
 HEAD_NUMBER_RE = re.compile(r"^\s*(?:\d+(?:\.\d+)+[.)]?\s+|\d+[.)]\s*)")  # "3. Findings", "11.2 What is still missing"
 BOLD_RE = re.compile(r"(\*\*|__)(?=\S)([^\n]+?)(?<=\S)\1")
@@ -170,9 +171,9 @@ def parse_sections(text):
             if m and title_key(m.group(1)) not in VERDICT_WORDS:
                 node = open_node(7, m.group(1), m.group(2) or None)
             else:
-                m = BOLD_LINE_RE.match(line)
+                m = BOLD_LINE_RE.match(line) or BOLD_PAREN_RE.match(line)
                 if m and title_key(m.group(1)) not in VERDICT_WORDS:
-                    node = open_node(7, m.group(1), None)
+                    node = open_node(7, m.group(1), m.group(2) if m.lastindex == 2 else None)
                 else:
                     for n in stack:
                         n["lines"].append(line)

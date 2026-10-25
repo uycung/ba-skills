@@ -823,6 +823,25 @@ class FiveStrictChecks(unittest.TestCase):
         self.assertFalse(run(c, "| 1 | Orphan | US-01 | High |"))
 
 
+class BoldLabelWithNote(unittest.TestCase):
+    """The one exception made after the grader was frozen (see README, "Grader exceptions")."""
+
+    def test_bold_label_followed_by_a_parenthetical_is_a_section(self):
+        text = '**Acceptance criteria** (rule-list form; "now" is the confirm time)\n1. a\n2. b\n**Assumptions**\nx'
+        self.assertEqual(grade.get_section(text, "Acceptance criteria").splitlines()[1:], ["1. a", "2. b"])
+        self.assertIn("rule-list form", grade.get_section(text, "Acceptance criteria"))
+        c = {"type": "match", "section": ["Acceptance criteria", "AC"], "pattern": r"^\d+\.", "flags": "m", "min": 2}
+        self.assertTrue(run(c, text))
+
+    def test_other_bold_text_is_still_not_a_section(self):
+        for line in ["**Note** this is a sentence.", "**Acceptance criteria** and more (x)", "**Acceptance criteria** (a) text (b)",
+                     "Text **Acceptance criteria** (x)"]:
+            with self.subTest(line):
+                self.assertIsNone(grade.get_section(line + "\n1. a", "Acceptance criteria"))
+        c = {"type": "sections", "names": ["Acceptance criteria"]}
+        self.assertFalse(run(c, "**Acceptance criteria** is the next part (see below) of this text"))
+
+
 class Isolation(unittest.TestCase):
     def status(self, meta, cid="rt-standalone"):
         return grade.grade_case(CASES[cid], golden(cid, "good"), meta)

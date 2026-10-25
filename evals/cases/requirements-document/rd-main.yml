@@ -26,14 +26,6 @@ checks:
   - id: empty-sections-shown
     type: match
     pattern: 'Not yet available'
-  - id: missing-stakeholders-listed
-    type: match
-    section: [What is still missing, Still missing, Missing]
-    pattern: 'stakeholder'
-  - id: missing-business-case-listed
-    type: match
-    section: [What is still missing, Still missing, Missing]
-    pattern: 'business case|financial|cost'
   - id: consistency-problems-reported
     type: rows
     expect:
@@ -46,4 +38,4 @@ checks:
   - id: suggests-review-before-approval
     type: match
     pattern: 'requirements-review'
-bad_expected_failures: [sections, stamped-unapproved, every-source-item-present, no-invented-codes, wording-kept, empty-sections-shown, missing-stakeholders-listed, missing-business-case-listed, consistency-problems-reported, suggests-review-before-approval]
+bad_expected_failures: [sections, stamped-unapproved, every-source-item-present, no-invented-codes, wording-kept, empty-sections-shown, consistency-problems-reported, suggests-review-before-approval]
