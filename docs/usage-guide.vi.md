@@ -79,4 +79,4 @@ Repo này không chứa PDF hay bản chuẩn gốc của các nguồn trên; sk
 - **Chưa chạy thử trên tài liệu thật.** Nên thử cả bộ trên một PRD hoặc ghi chép họp thật và ghi lại chỗ skill làm chưa tốt.
 - Skill không thay QA, pháp chế hay người ra quyết định: nó chuẩn bị đầu vào để người có thẩm quyền xác nhận.
 
-Cài đặt và cập nhật: xem [README](../README.md#cài-đặt).
+Cài đặt và cập nhật: xem [README](../README.md#install).
