@@ -1,7 +1,7 @@
 # [Initiative name]: Business case
 
 Version: | Date: | Owner: | Status: Draft / Reviewed / Approved
-Labels: [S] stated, [Src: source], [A] assumption to confirm.
+Labels: [Stated], [Source: …], [Assumption] to confirm.
 
 ## 1. Executive summary
 Need, recommended option, main benefit (figure), investment (figure), largest risk, decision required. Contains only what appears in the sections below.
