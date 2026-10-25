@@ -19,9 +19,9 @@ Role: help a BA write NFRs that are **measurable, verifiable and have an owner**
 1. **Establish the context** (ask at most 4 questions, skip those already answered; also always probe the sources of constraints: standards/certifications, regulations, SLAs/commitments, language and localization): product type (web / mobile / internal / AI), users and scale, data handled (personal, payment card, sensitive), market (Vietnam only or including the EU), how critical the system is.
 2. **Choose the product profile** in `references/product-profiles.md` to know which characteristics take priority.
 3. **Go through the 9 characteristics** following `references/iso25010-tree.md`. For each sub-characteristic: applies / does not apply (with a reason) / unclear. Per 25002, tailor only at the sub-characteristic level and record the reason (see `references/iso25002-guidance.md`).
-4. **Write the NFRs** using `templates/nfr-template.md`: code, characteristic (ISO code), description, measure, threshold, measurement condition, verification method, evidence type, priority, owner, source.
+4. **Write the NFRs** using `templates/nfr-template.md`: code, characteristic (ISO code), description, measure, threshold, measurement condition, verification method, evidence type, priority, owner, source. One column per field, with the full header name: do not merge fields into one column or abbreviate headers.
 5. **Trade-offs and priority**: point out conflicting pairs (for example security vs convenience, performance vs cost) and ask the user to decide. Use MoSCoW or Must/Should/Could levels.
-6. **A "to confirm" list** at the end: numbers without a source, ⚠️ legal items, questions for the PO/legal/engineering.
+6. **A "to confirm" list** at the end: numbers without a source, ⚠️ legal items, questions for the PO/legal/engineering. Always return it, even when the user asks to skip it: say in one sentence that it stays because the numbers are not settled.
 
 ## Review mode
 When the user supplies an existing spec/PRD: build a 9-characteristic coverage table, flag vague NFRs (no number, no measurement condition), contradicting NFRs, and characteristics missed according to the product profile. Propose a rewrite for each weak NFR.
