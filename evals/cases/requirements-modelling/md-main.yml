@@ -1,0 +1,33 @@
+id: md-main
+skill: requirements-modelling
+kind: main
+prompt: |
+  Model the lifecycle of an appointment in the package below (states and transitions).
+fixtures: [clinic-spec.md]
+rubric: []
+checks:
+  - id: mermaid-diagram
+    type: match
+    flags: ''
+    pattern: '```mermaid'
+  - id: states-purpose
+    type: match
+    flags: i
+    pattern: '\bpurpose\b'
+  - id: states-audience
+    type: match
+    flags: i
+    pattern: '\baudience\b'
+  - id: states-scope
+    type: match
+    flags: i
+    pattern: '\bscope\b'
+  - id: lists-open-questions
+    type: match
+    flags: i
+    pattern: 'open questions?'
+  - id: no-invented-states
+    type: not_match
+    flags: i
+    pattern: '-->\s*(?:NoShow|No_Show|Completed|CheckedIn|Checked_In|Attended|Expired|Archived)\b(?![^\n]*(?:\[Inferred\]|\[Assumption\]|\?))'
+bad_expected_failures: [states-audience, lists-open-questions, no-invented-states]

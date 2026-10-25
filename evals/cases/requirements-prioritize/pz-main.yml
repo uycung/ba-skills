@@ -1,0 +1,28 @@
+id: pz-main
+skill: requirements-prioritize
+kind: main
+prompt: |
+  Rank the stories of the package below for the first release. Nobody has agreed any criteria yet and there are no cost estimates.
+fixtures: [clinic-spec.md]
+rubric: []
+checks:
+  - id: criteria-need-agreement
+    type: match
+    flags: is
+    pattern: 'criteri.{0,200}(agree|confirm|decide)'
+  - id: cost-is-not-estimated
+    type: match
+    flags: i
+    pattern: 'not estimated'
+  - id: no-cost-figures
+    type: not_match
+    unless_sourced_by_code: true
+    flags: i
+    pattern: '\b(?:cost|effort|estimate)\b[^.\n|]{0,30}\b\d+\s*(?:hours?|days?|points?|h|d|usd)\b'
+  - id: no-invented-codes
+    type: ids_subset
+  - id: says-who-decides
+    type: match
+    flags: i
+    pattern: 'who decides|decision needed|decided by|to decide|decision-?makers?'
+bad_expected_failures: [criteria-need-agreement, cost-is-not-estimated, no-cost-figures, no-invented-codes, says-who-decides]

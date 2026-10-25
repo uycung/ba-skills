@@ -17,7 +17,10 @@ import grade  # noqa: E402
 EVALS = Path(__file__).resolve().parents[1]
 GOLDEN = EVALS / "golden"
 CASES = grade.load_cases()
-SKILLS_UNDER_TEST = {"story-writer", "requirements-review", "requirements-trace", "requirements-document"}
+FIRST_BATCH = {"story-writer", "requirements-review", "requirements-trace", "requirements-document"}
+SECOND_BATCH = {"business-case-strategy", "requirements-elicitation", "requirements-modelling", "nfr-writer",
+                "requirements-prioritize", "requirements-stakeholders", "requirements-testcases"}
+SKILLS_UNDER_TEST = FIRST_BATCH | SECOND_BATCH
 STANDALONE_IDS = {"sw-standalone", "rr-standalone-tracking", "rr-standalone-iso", "rt-standalone", "rd-standalone"}
 
 
@@ -55,10 +58,12 @@ class CaseFiles(unittest.TestCase):
             by_skill.setdefault(c["skill"], []).append(c["kind"])
         self.assertEqual(set(by_skill), SKILLS_UNDER_TEST)
         for skill, kinds in by_skill.items():
-            for kind in ("main", "vague", "trap"):
+            for kind in (("main", "vague", "trap") if skill in FIRST_BATCH else ("main", "trap")):
                 self.assertEqual(kinds.count(kind), 1, f"{skill} needs one {kind} case")
+            if skill in SECOND_BATCH:
+                self.assertEqual(len(kinds), 2, f"{skill}: the light batch has one main and one trap case")
         self.assertEqual({i for i, c in CASES.items() if c["kind"] == "standalone"}, STANDALONE_IDS)
-        self.assertEqual(len(CASES), 17)
+        self.assertEqual(len(CASES), 31)
 
     def test_every_case_is_valid(self):
         for cid, case in CASES.items():
@@ -887,6 +892,86 @@ class LastGraderException(unittest.TestCase):
         self.assertFalse(run(c, "US-04 serves GOAL-02 because it reschedules."))
 
 
+class SevenFalsePositivesOfBatchTwo(unittest.TestCase):
+    """The one reopening after the second batch (README, "Grader exceptions"). Each fix is tested
+    in both directions: the valid wording passes, the violation is still found."""
+
+    @staticmethod
+    def chk(cid, check_id):
+        return next(x for x in CASES[cid]["checks"] if x["id"] == check_id)
+
+    def test_advice_or_advise(self):
+        c = self.chk("bc-main", "says-it-is-not-advice")
+        for ok in ["It is not financial or investment advice.", "I am not a financial adviser.", "not legal advice"]:
+            self.assertTrue(run(c, ok))
+        self.assertFalse(run(c, "This is financial advice."))
+        self.assertFalse(run(c, "Approve the project now."))
+
+    def test_short_labels_need_a_legend(self):
+        c = self.chk("sh-main", "facts-are-labelled")
+        self.assertTrue(run(c, "Labels: [S] stated in the package, [I] inferred.\n| Manager | sets hours [S] |"))
+        self.assertTrue(run(c, "| Manager | sets hours [Stated] |"))
+        self.assertTrue(run(c, "[S] = stated by you.\nThe manager signs [S/I]."))
+        self.assertFalse(run(c, "| Manager | sets hours [S] |"))  # never explained
+        self.assertFalse(run(c, "Labels: [S] stated in the package."))  # explained, never used
+        self.assertFalse(run(c, "Labels: [I] inferred.\n| Manager | sets hours [S] |"))  # a different label is explained
+        self.assertFalse(run(c, "| Manager | sets hours |"))
+        ci = self.chk("sh-main", "judgements-are-labelled")
+        self.assertTrue(run(ci, "Labels: [S] stated, [I] inferred.\n| Influence | High [I] |"))
+        self.assertFalse(run(ci, "Labels: [S] stated.\n| Influence | High [I] |"))
+        cb = self.chk("bc-main", "figures-are-labelled")
+        self.assertTrue(run(cb, "Labels: [S] stated by you.\nA [S]. B [S]. C [S]."))
+        self.assertTrue(run(cb, "A [Stated]. B [Source: invoice]. C [Stated]."))
+        self.assertFalse(run(cb, "Labels: [S] stated by you.\nA [S]. B [S]."))  # needs 3 uses
+
+    def test_zero_percent_is_a_bound_not_a_chosen_rate(self):
+        c = self.chk("bc-main", "discount-rate-not-chosen")
+        self.assertTrue(run(c, "The result is already negative at a discount rate of 0%, and discounting makes it worse."))
+        self.assertTrue(run(c, "The discount rate is [Assumption, needs confirmation] 8%."))
+        self.assertFalse(run(c, "The discount rate is 10% so the NPV is positive."))
+        self.assertFalse(run(c, "Using a discount rate of 0.5% we get a high NPV."))
+        self.assertFalse(run(c, "Discount rate 10%, tested also at 0%."))
+
+    def test_inferred_states_are_allowed_when_marked(self):
+        c = self.chk("md-main", "no-invented-states")
+        self.assertTrue(run(c, "```mermaid\nBooked --> Completed: time passes (?)\nBooked --> NoShow: absent [Inferred]\n```"))
+        self.assertFalse(run(c, "```mermaid\nBooked --> Completed\n```"))
+        self.assertFalse(run(c, "```mermaid\nBooked --> NoShow: absent\n```\nOpen question: is there a no-show state?"))  # '?' on another line
+
+    def test_ask_first_case_for_the_physical_schema(self):
+        c = CASES["md-trap"]
+        good = grade.grade_case(c, golden("md-trap", "good"), None)
+        self.assertEqual(good["failed"], [])
+        asks = self.chk("md-trap", "asks-before-the-physical-schema")
+        self.assertTrue(run(asks, "Do you want the physical schema anyway?"))
+        self.assertFalse(run(asks, "Here is the physical schema."))
+        phys = self.chk("md-trap", "no-physical-schema")
+        self.assertFalse(run(phys, "bigint patient_id PK"))
+        self.assertTrue(run(phys, "Keys and indexes belong to the implementer."))
+
+    def test_a_vs_b_is_a_difference(self):
+        c = next(x for x in CASES["el-main"]["checks"] if x["id"] == "contradictions-found")
+        ok = "## Contradictions\n- Weekly report (manager) vs every morning (reception)\n- 24 hours (manager) vs 2 hours (reception)\n"
+        self.assertTrue(run(c, ok))
+        self.assertFalse(run(c, "## Contradictions\n- Weekly report (manager) and every morning (reception)\n- 24 hours and 2 hours\n"))
+
+    def test_a_figure_is_sourced_by_the_item_named_on_the_line(self):
+        c = self.chk("pz-trap", "no-cost-figures")
+        kw = dict(fixtures=["clinic-spec.md"], prompt="Score the stories.")
+        self.assertTrue(run(c, "US-02 says 2 hours, but BR-02 says 24 hours.", **kw))
+        self.assertFalse(run(c, "US-02 costs 16 hours.", **kw))  # not in the item
+        self.assertFalse(run(c, "US-01 says 2 hours.", **kw))  # another item's figure
+        self.assertFalse(run(c, "The window is 2 hours.", **kw))  # no item named
+        self.assertFalse(run(c, "US-05 needs 8 hours of work.", **kw))
+
+    def test_a_refusal_may_repeat_the_name(self):
+        c = self.chk("tc-trap", "no-real-personal-data")
+        self.assertTrue(run(c, 'Hard rule 5: I will not use real personal data such as "Nguyen Van A" in test cases.'))
+        self.assertTrue(run(c, "Never use real patient data, so not 0912345678; I use a fake patient."))
+        self.assertFalse(run(c, "Test data is Nguyen Van A, 0912345678, as you asked."))
+        self.assertFalse(run(c, "| TC-01 | Nguyen Van A books | ok |\nI will not use real data elsewhere."))
+
+
 class Isolation(unittest.TestCase):
     def status(self, meta, cid="rt-standalone"):
         return grade.grade_case(CASES[cid], golden(cid, "good"), meta)
@@ -952,7 +1037,7 @@ class StatusMatrix(unittest.TestCase):
 
     def test_only_passes(self):
         code, text, auto = self.run_grade(passing=["sw-main", "rt-standalone"])
-        self.assertEqual((code, self.summary(text)), (3, ("2", "0", "0", "15")))  # 15 outputs missing
+        self.assertEqual((code, self.summary(text)), (3, ("2", "0", "0", str(len(CASES) - 2))))  # the rest is missing
         self.assertEqual(set(auto.values()), {"pass"})
 
     def test_a_failure(self):
@@ -984,7 +1069,7 @@ class StatusMatrix(unittest.TestCase):
 
     def test_missing_outputs_are_never_a_zero_by_default(self):
         code, text, _ = self.run_grade(passing=["sw-main"])
-        self.assertEqual((code, self.summary(text)), (3, ("1", "0", "0", "16")))
+        self.assertEqual((code, self.summary(text)), (3, ("1", "0", "0", str(len(CASES) - 1))))
         self.assertIn("MISSING    rr-main", text)
 
     def test_priority_is_fail_then_missing_then_unverified_then_pass(self):
@@ -998,11 +1083,11 @@ class StatusMatrix(unittest.TestCase):
         # unverified only, on a complete run
         every = [c for c in CASES if c != "rt-standalone"]
         code, text, _ = self.run_grade(passing=every, unverified=["rt-standalone"])
-        self.assertEqual((code, self.summary(text)), (2, ("16", "0", "1", "0")))
+        self.assertEqual((code, self.summary(text)), (2, (str(len(CASES) - 1), "0", "1", "0")))
         # fail + unverified on a complete run
         every = [c for c in CASES if c not in ("rt-standalone", "rr-main")]
         code, text, _ = self.run_grade(passing=every, failing=["rr-main"], unverified=["rt-standalone"])
-        self.assertEqual((code, self.summary(text)), (1, ("15", "1", "1", "0")))
+        self.assertEqual((code, self.summary(text)), (1, (str(len(CASES) - 2), "1", "1", "0")))
 
     def test_allow_missing_only_ignores_missing(self):
         self.assertEqual(self.run_grade(passing=["sw-main"], allow_missing=True)[0], 0)
@@ -1012,12 +1097,12 @@ class StatusMatrix(unittest.TestCase):
 
     def test_nothing_graded(self):
         code, text, auto = self.run_grade()
-        self.assertEqual((code, self.summary(text), auto), (3, ("0", "0", "0", "17"), {}))
+        self.assertEqual((code, self.summary(text), auto), (3, ("0", "0", "0", str(len(CASES))), {}))
 
     def test_only_a_complete_proven_run_exits_zero(self):
         every = list(CASES)
         code, text, auto = self.run_grade(passing=every)
-        self.assertEqual((code, self.summary(text)), (0, ("17", "0", "0", "0")))
+        self.assertEqual((code, self.summary(text)), (0, (str(len(CASES)), "0", "0", "0")))
         self.assertEqual(set(auto.values()), {"pass"})
 
 

@@ -1,0 +1,26 @@
+id: nf-main
+skill: nfr-writer
+kind: main
+prompt: |
+  Write the non-functional requirements for the online booking in the package below. It is a web system for patients in Vietnam only, with health-related personal data.
+fixtures: [clinic-spec.md]
+rubric: []
+checks:
+  - id: nfr-table
+    type: table_columns
+    columns: ['^code', 'characteristic', '^measure', '^threshold', 'verification', '^evidence', '^owner']
+    min_rows: 4
+  - id: evidence-label-on-every-row
+    type: column_values
+    column: '^evidence'
+    allowed: ['(a)', '(b)', '(c)', 'a ', 'b ', 'c ', 'a:', 'b:', 'c:', 'n/a', 'mandatory', 'recommended', 'common']
+    min_rows: 4
+  - id: sections
+    type: sections
+    ordered: true
+    names: [Trade-offs, To confirm]
+  - id: legal-items-flagged
+    type: match
+    flags: i
+    pattern: 'legal confirmation'
+bad_expected_failures: [nfr-table, evidence-label-on-every-row, sections, legal-items-flagged]

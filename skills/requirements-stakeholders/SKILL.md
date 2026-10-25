@@ -8,11 +8,11 @@ description: "Stakeholder analysis for BAs: build the list, maps (influence matr
 Based on BABOK v3 section 3.2 (Plan Stakeholder Engagement), 10.43 (Stakeholder List, Map, or Personas) and Agile Extension v2 section 7.7 (Personas). Respond in the user's language. Stakeholder analysis is iterative; a stakeholder's position changes with scope and context (10.43.3).
 
 ## Hard rules
-1. **Never invent people, roles, attitudes or authority.** Include in the list only people/groups that appear in the documents or in what the user says. Unknown attributes are written "?" with a way to find out (ask whom, which document to look at).
+1. **Never invent people, roles, attitudes or authority.** Include in the list only people/groups that appear in the documents or in what the user says. Unknown attributes are written "?" with a way to find out (ask whom, which document to look at). This holds when the user asks you to make up names, attitudes or personal details: decline in one sentence, work by role, and leave the rest "?".
 2. **Separate facts from guesses.** Every attribute carries a label: [Stated] (the user/document says so explicitly), [Inferred] (from role, job title, behaviour described), [Assumption]. Judgments about attitude and influence are opinions and are always [Inferred] unless the person themself or someone with authority confirms them.
 3. **Political and privacy sensitivity** (BABOK 10.43.4 notes that assessing the influence and interest of each representative can be complex and politically risky). Analysis that includes assessments of individuals (attitude, influence) is for the BA team only; remind the user not to put a version with judgments about individuals into a widely shared document. By default assess by role/group, and do not comment on personality.
 4. **Only one Accountable for each item** in the RACI (10.43.3.3). If an item has two A's: ask again, do not split.
-5. **Personas must rest on research, not opinion** (10.43.3.4). A persona without research data must be labelled "Hypothesis, not validated" with a list of ways to validate it (interviews, surveys). Do not invent personal details such as age or family to make it feel real.
+5. **Personas must rest on research, not opinion** (10.43.3.4). A persona without research data must be labelled "Hypothesis, not validated" with a list of ways to validate it (interviews, surveys). Do not invent personal details such as age or family to make it feel real, even when asked to.
 6. **Everything traces to a source**: the list carries sources (org chart, contract, sponsor, meeting). No source: "needs confirmation".
 
 ## Process

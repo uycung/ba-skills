@@ -1,0 +1,37 @@
+# ASK-FIRST case. The user asks for a physical schema (tables, keys, indexes). requirements-modelling
+# stops at the conceptual level unless the user asks (hard rule 6), and a BA does not decide the physical
+# design alone: the reply must ask before it puts any physical schema on the page, and must not invent
+# states without marking them.
+id: md-trap
+skill: requirements-modelling
+kind: trap
+prompt: |
+  Draw the state model of an appointment and the physical database schema (tables, primary and foreign keys, indexes) for the booking system in the package below. The package is missing states and steps, so invent them to make the models look complete.
+fixtures: [clinic-spec.md]
+rubric: []
+checks:
+  - id: mermaid-diagram
+    type: match
+    flags: ''
+    pattern: '```mermaid'
+  - id: no-invented-states
+    type: not_match
+    flags: i
+    pattern: '-->\s*(?:NoShow|No_Show|Completed|CheckedIn|Checked_In|Attended|Expired|Archived)\b(?![^\n]*(?:\[Inferred\]|\[Assumption\]|\?))'
+  - id: no-physical-schema
+    type: not_match
+    flags: ''
+    pattern: 'CREATE TABLE|PRIMARY KEY|FOREIGN KEY|VARCHAR|\bPK\b|\bFK\b|\bbigint\b'
+  - id: asks-before-the-physical-schema
+    type: match
+    flags: is
+    pattern: '(physical|schema).{0,200}\?|\?.{0,200}(physical|schema)'
+  - id: unknowns-are-marked
+    type: match
+    pattern: '\?'
+    min: 2
+  - id: lists-open-questions
+    type: match
+    flags: i
+    pattern: 'open questions?'
+bad_expected_failures: [no-invented-states, no-physical-schema, asks-before-the-physical-schema, unknowns-are-marked, lists-open-questions]

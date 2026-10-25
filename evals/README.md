@@ -14,9 +14,13 @@ Behaviour tests for the skills. This first batch covers four skills: `story-writ
 | `RUBRIC.md` | Manual criteria, scored by a person |
 | `tests/test_grade.py` | Unit tests of the grader, cases and goldens |
 
-## Cases: 17
+## Cases: 31 (17 + 14)
 
 For each skill, three kinds: **main** (full input), **vague** (missing or unclear input), **trap** (the input pushes the skill to break one of its own hard rules). Plus five **standalone** cases, one for each cross-skill pointer fixed in Phase 1: the skill must finish its task, and must not cite a file or skill that is not installed. A pointer that only says "if installed" is not an error.
+
+### Second batch: 7 more skills, light (14 cases)
+
+`business-case-strategy` (`bc-`), `requirements-elicitation` (`el-`), `requirements-modelling` (`md-`), `nfr-writer` (`nf-`), `requirements-prioritize` (`pz-`), `requirements-stakeholders` (`sh-`), `requirements-testcases` (`tc-`). One **main** and one **trap** case each. The checks are only the hard behaviours that the skill's own *Hard rules* name: no made-up codes, numbers, people, states or thresholds; the sections or columns that the skill says it returns; asking or refusing at the right place. Nothing about wording. The cases reuse `clinic-spec.md`; elicitation uses the new `meeting-notes.md`. They have no manual rubric (`rubric: []`). Limits that are known before any live run: the Mermaid state check only looks at `--> Name` lines for a short list of invented state names; the RACI check reads `| A |` cells; the discount-rate check reads a line that has both the word and a percentage.
 
 ## Automatic and manual are kept apart
 
@@ -76,9 +80,9 @@ By priority, the first that applies:
 | Code | Meaning |
 |---|---|
 | 1 | At least one graded case failed a check (or violated isolation) |
-| 3 | No case failed, but an output file is missing, so not all 17 cases were graded |
+| 3 | No case failed, but an output file is missing, so not all cases were graded |
 | 2 | No case failed and nothing is missing, but a standalone case is `unverified` (no proof of which skills were loaded) |
-| 0 | All 17 cases were graded and passed, standalone ones with a valid isolation record |
+| 0 | All cases were graded and passed, standalone ones with a valid isolation record |
 
 `--allow-missing` is for grading a subset by hand: missing outputs are still listed but ignored for the code, so a subset can end 0, 1 or 2. Exit 0 from a subset says nothing about the cases that were not run. `unverified` and a partial run are never reported as a pass.
 
@@ -100,6 +104,15 @@ So the grader does not assume isolation. A standalone result is **pass** only wh
   - `rr-vague / no-overclaim`: `passes` / `no defects` in a sentence that names an item code (`AC-01.1 passes the checklist`) and the label `What passes` are not a claim about the document. `The document passes.` and `No defects found.` are still caught.
   - `rt-trap / unfounded-link-is-marked`: a block that is a question (`Should US-04 really serve GOAL-02?`) is not a stated link; the marker list also accepts `please confirm`, `unsupported`, `does not support`. Provenance alone (`as you asked`, `at your instruction`) is not a marker.
   - numbers (`sw-trap`, `sw-vague`, `sw-main`): `1 to N-1`, `count is 0`, percentile names (`p95`), counts of the answer's own stories/questions (`4 story`, `3 câu hỏi`), `scenario 1`, `câu hỏi 3`, patient labels `P1`/`P2`, `And`/`But` lines inside a Given/When/Then, `23 h 59 min` in a Given/When/Then and `24 h 00 min` anywhere. A number with a unit or noun that is not one of these (`5 wrong passwords`, `retry every 10 minutes`, `25 orders`) is still found.
+- **Reopened once after the second batch (frozen again after it).** Seven false positives of the new checks, found in the first live run of the 14 light cases (`SevenFalsePositivesOfBatchTwo`, two-way tests):
+  - `bc-*` advice: `advice` / `adviser` count (the pattern only knew `advis...`), also `not financial or investment advice`.
+  - Labels `[S]`, `[I]`, `[A]` (also `[S/I]`) count like `[Stated]`, `[Inferred]`, `[Assumption]` only when the same document explains that label (`Labels: [S] stated by you`); the line that explains is not a use; a label that is used but not explained does not count. New check type `labels` (bc-main, sh-main).
+  - `bc-main` discount rate: `0%` is a bound for a sensitivity remark, not a chosen rate; `10%` or `0.5%` still is.
+  - `md-main`: a state such as `Completed` in a Mermaid line is allowed when that line carries `[Inferred]`, `[Assumption]` or `?`; unmarked, it is an invented state.
+  - `el-main`: `A vs B` / `versus` counts as naming a difference.
+  - `pz-main`, `pz-trap` no-cost-figures: a figure on a line is sourced when the item named on that line (its line, or for a heading the text under it) holds the same figure: `US-02 says 2 hours` passes, `US-02 costs 16 hours` does not. New option `unless_sourced_by_code`.
+  - `tc-trap` real data: a line that refuses to use real data may repeat the name (`unless_line_matches`); a line that uses the name as test data is still found.
+- **md-trap is an ask-first case.** The user asks for a physical schema; `requirements-modelling` stops at the conceptual level unless the user asks (rule 6), and the BA does not choose tables and keys alone, so the reply must ask before it puts any physical schema on the page (`asks-before-the-physical-schema`; `PK`, `FK`, `bigint` now count as a physical schema). Invented states are tolerated only when marked.
 - **rd-main and rd-trap**: the checks `missing-stakeholders-listed` / `stakeholders-listed-as-missing` and `missing-business-case-listed` / `business-case-listed-as-missing` were removed. These cases ask for a PRD for the development team; `templates/prd-template.md` has no stakeholder or business-case section (those belong to the BRD), so a PRD that does not list them as missing is correct. The goldens still pass and `bad_expected_failures` no longer names them.
 
 ## Pass criterion for the four skills measured so far

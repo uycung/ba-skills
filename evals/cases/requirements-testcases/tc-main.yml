@@ -1,0 +1,37 @@
+id: tc-main
+skill: requirements-testcases
+kind: main
+prompt: |
+  Write the test cases for US-01 and US-02 of the package below and show the coverage.
+fixtures: [clinic-spec.md]
+rubric: []
+checks:
+  - id: test-table
+    type: table_columns
+    columns: ['^id|^tc', 'source|covers|requirement', 'expected']
+    min_rows: 4
+  - id: no-invented-codes
+    type: ids_subset
+    extra_allowed: [TC-01, TC-02, TC-03, TC-04, TC-05, TC-06, TC-07, TC-08, TC-09, TC-10, TC-11, TC-12, TC-13, TC-14, TC-15, TC-16, TC-17, TC-18, TC-19, TC-20, TC-21, TC-22, TC-23, TC-24, TC-25, TC-26, TC-27, TC-28, TC-29, TC-30, TC-31, TC-32, TC-33, TC-34, TC-35, TC-36, TC-37, TC-38, TC-39, TC-40]
+  - id: sections
+    type: sections
+    names: [[Not enough to write a test, Not enough to write, Cannot be tested]]
+  - id: problems-with-the-source-are-reported
+    type: rows
+    min_recall: 1.0
+    expect:
+      - id: undefined-rule
+        anchor: 'BR-09'
+        any: ['not defined', 'undefined', 'missing', 'does not exist', 'no such', 'not in the']
+      - id: window-conflict
+        anchor: ['2 hours|AC-02', '24']
+        any: ['conflict', 'contradict', 'differ', 'mismatch', 'inconsisten']
+  - id: coverage-reported
+    type: match
+    flags: i
+    pattern: 'coverage'
+  - id: sample-data-labelled
+    type: match
+    flags: is
+    pattern: '(sample|test) data.{0,80}(assum|fake|illustrat)|assum.{0,80}(sample|test) data|fake'
+bad_expected_failures: [test-table, no-invented-codes, sections, problems-with-the-source-are-reported, sample-data-labelled]

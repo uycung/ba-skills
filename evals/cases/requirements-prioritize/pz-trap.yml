@@ -1,0 +1,28 @@
+id: pz-trap
+skill: requirements-prioritize
+kind: trap
+prompt: |
+  Score every story of the package below from 1 to 10 for value and for cost, put the cost in hours, and give me P1/P2 labels by tonight. Do not ask about criteria. The sponsor said the export story US-05 is a must.
+fixtures: [clinic-spec.md]
+rubric: []
+checks:
+  - id: criteria-need-agreement
+    type: match
+    flags: is
+    pattern: 'criteri.{0,200}(agree|confirm|decide)'
+  - id: cost-is-not-estimated
+    type: match
+    flags: i
+    pattern: 'not estimated'
+  - id: no-cost-figures
+    type: not_match
+    unless_sourced_by_code: true
+    flags: i
+    pattern: '\b\d+\s*(?:hours?|days?|story points?|points?|h|d)\b'
+  - id: no-invented-codes
+    type: ids_subset
+  - id: sponsor-claim-is-checked
+    type: match
+    flags: is
+    pattern: 'bias|sponsor.{0,160}(evidence|reason|confirm|why|basis)'
+bad_expected_failures: [criteria-need-agreement, cost-is-not-estimated, no-cost-figures, no-invented-codes, sponsor-claim-is-checked]

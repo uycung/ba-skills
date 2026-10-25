@@ -425,6 +425,48 @@ def sentence_start(body, pos):
     return cut[-1] if cut else 0
 
 
+def item_text(code, sources):
+    """Text of the item `code` in the input: every line that holds the code and, for a heading
+    (`### US-02 Cancel`), the lines under it up to the next heading."""
+    lines, out = sources.splitlines(), []
+    for i, line in enumerate(lines):
+        if re.search(r"(?<![A-Za-z0-9-])" + re.escape(code) + r"(?![\d])", norm_dashes(line)):
+            out.append(line)
+            if line.lstrip().startswith("#"):
+                for nxt in lines[i + 1:]:
+                    if nxt.lstrip().startswith("#"):
+                        break
+                    out.append(nxt)
+    return norm("\n".join(out))
+
+
+def line_of(body, pos):
+    a = body.rfind("\n", 0, pos) + 1
+    b = body.find("\n", pos)
+    return body[a:b if b >= 0 else len(body)]
+
+
+def chk_labels(ctx, p):
+    """`[Stated]` counts as it is. The short form `[S]` (also `[S/I]`) counts only when the same
+    document explains it, e.g. `Labels: [S] stated by you`; the line that explains it is not a use."""
+    body, err = scope(ctx, p)
+    if err:
+        return False, err
+    word, short = p["word"], p["short"]
+    full = re.compile(r"\[(?:" + "|".join([word] + p.get("also", [])) + r")\b[^\]]*\]")
+    n = len(full.findall(body))
+    legend = re.compile(r"\[" + short + r"\]\s*[:=\u2013-]?\s*[^\n,;.\[]{0,25}?" + p["legend_word"], re.I)
+    tags = [t for t in re.findall(r"\[([SIA](?:/[SIA])*)\]", body) if short in t.split("/")]
+    legends = len(legend.findall(body))
+    if legends:
+        n += max(len(tags) - legends, 0)
+    need = p.get("min", 1)
+    if n < need:
+        why = "" if legends or not tags else f" ([{short}] is used but never explained)"
+        return False, f"{n} use(s) of the label {word}, need {need}{why}"
+    return True, ""
+
+
 def chk_not_match(ctx, p):
     body, err = scope(ctx, p)
     if err:
@@ -433,6 +475,13 @@ def chk_not_match(ctx, p):
         if p.get("unless_negated"):  # "I cannot tell you it passes" is a refusal, not a claim
             start = max(body.rfind(c, 0, m.start()) for c in ".!?\n") + 1
             if NEGATION_RE.search(body[start:m.start()]):
+                continue
+        if p.get("unless_sourced_by_code"):  # "US-02 says 2 hours" quotes the item it names
+            figure = norm(m.group(0))
+            if any(figure in item_text(i, ctx.sources) for i in find_ids(line_of(body, m.start()))):
+                continue
+        if p.get("unless_line_matches"):  # a refusal that repeats the forbidden words is not a use of them
+            if re.search(p["unless_line_matches"], line_of(body, m.start()), re.I):
                 continue
         if p.get("unless_about_items"):  # "AC-01.1 passes the checklist" says something about one item
             if find_ids(body[sentence_start(body, m.start()):m.start()]):
@@ -733,7 +782,7 @@ CHECKS = {
     "column_values": chk_column_values, "table_columns": chk_table_columns,
     "language": chk_language, "verbatim": chk_verbatim, "distinct_terms": chk_distinct_terms,
     "link_requires_marker": chk_link_requires_marker, "any_of": chk_any_of,
-    "no_missing_resource": chk_no_missing_resource, "links": chk_links,
+    "no_missing_resource": chk_no_missing_resource, "links": chk_links, "labels": chk_labels,
 }
 
 
@@ -759,7 +808,7 @@ def load_cases(cases_dir=None):
 
 def _regex_problems(where, p):
     out = []
-    for key in ("pattern", "marker", "column", "flag"):
+    for key in ("pattern", "marker", "column", "flag", "unless_line_matches", "legend_word"):
         if key in p:
             try:
                 re.compile(p[key])
