@@ -21,6 +21,8 @@ def make_repo(tmp, skills=None):
         shutil.copytree(ROOT / name, repo / name)
     for name in ("README.md", "LICENSE"):
         shutil.copy(ROOT / name, repo / name)
+    (repo / "evals").mkdir()
+    shutil.copy(ROOT / "evals" / "README.md", repo / "evals" / "README.md")  # linked from README.md
     (repo / "skills").mkdir()
     for s in skills or SKILLS:
         shutil.copytree(ROOT / "skills" / s, repo / "skills" / s)

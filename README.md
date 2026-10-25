@@ -36,7 +36,9 @@ A suggestion, not a rule:
 
 ## Install
 
-**Install the whole set.** The skills reference each other by name (for example `requirements-trace` and `story-writer`), so installing a single skill leaves dangling references.
+Listing and one-line install: [skills.sh/uycung/ba-skills](https://skills.sh/uycung/ba-skills)
+
+Each skill can be installed on its own: cross-references to other skills are written as "if installed", and `python3 scripts/validate.py --standalone` checks this. Installing the whole set gives the best results.
 
 ### With `npx skills`
 
@@ -103,12 +105,21 @@ This repo contains no PDFs or original text of these sources. More detail: [docs
 
 > **Legal notice.** [`skills/nfr-writer/references/legal-vn.md`](skills/nfr-writer/references/legal-vn.md) is reference information, **not legal advice**. It was last verified on 24/10/2026 and contains items marked ⚠️ that are **unverified** against the original text (for example Decree 330/2026, Decree 142/2026, the status of Decree 53/2022). Legal counsel must confirm before it goes into a contract or spec.
 
+## Quality checks
+
+- `scripts/validate.py` (also with `--standalone`) and the unit tests of the eval grader run in CI on every pull request.
+- [`evals/`](evals/README.md) holds 31 offline eval cases (main, vague, trap, standalone) and a live runner (`evals/run.py`; needs the `claude` CLI; about $1.5 per 17 cases).
+- The live eval found and fixed real defects: invented test-case codes, invented names and personas, a skipped To confirm list, inconsistent section names, and wrong skill routing.
+- Limits: the grader still has known false positives (listed in [evals/README.md](evals/README.md)); each case was run 2 to 3 times only; no real PRD or meeting notes have been run yet.
+- Open quality issues: [label `skill-quality`](https://github.com/uycung/ba-skills/issues?q=is%3Aopen+label%3Askill-quality) ([#2](https://github.com/uycung/ba-skills/issues/2), [#3](https://github.com/uycung/ba-skills/issues/3), [#4](https://github.com/uycung/ba-skills/issues/4)).
+
 ## Known limits
 
 - The suite has not yet been run on a real PRD or meeting notes.
 - The skills prepare input for the person with authority to confirm; they do not replace QA, legal counsel or the decision maker.
 - They do not fill in numbers (NFR thresholds, UAT criteria, targets); missing values are written as "to be confirmed".
 - Some BABOK and Agile Extension sections have not been read (list in the usage guide).
+- The live eval ran with Claude Sonnet 5.5; other hosts have not been tried.
 
 ## License
 
