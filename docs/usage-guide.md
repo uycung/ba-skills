@@ -1,82 +1,83 @@
-# Bộ 11 skill BA: hướng dẫn sử dụng
+# The 11 BA skills: usage guide
 
-Bộ skill giúp BA làm việc với Claude từ đầu dự án đến lúc bàn giao: phân tích stakeholder, business case, khai thác yêu cầu, viết story/NFR, mô hình hóa, ưu tiên, truy vết, rà soát, test case/UAT và lắp tài liệu BRD/PRD/SRS. Cập nhật lần cuối 25/10/2026.
+Vietnamese version: [usage-guide.vi.md](usage-guide.vi.md) (kept from release `v1.0.0-vi`; it describes the Vietnamese skills).
 
-## 1. Nguyên tắc chung của cả bộ
+The suite helps a business analyst work with an AI agent from project start to handover: stakeholder analysis, business case, elicitation, stories and NFRs, modelling, prioritisation, traceability, review, test cases/UAT, and assembling BRD/PRD/SRS documents. Last updated 25/10/2026.
 
-- **Có nguồn, không bịa.** Nội dung bám BABOK v3 và Agile Extension v2; test dựa trên ISTQB CTFL v4.0.1; NFR dựa trên ISO/IEC 25010:2023; chất lượng yêu cầu bổ sung từ ISO/IEC/IEEE 29148:2018. Skill luôn nói rõ cái gì thuộc nguồn nào, cái gì chỉ là quy ước của skill.
-- **Không tự điền con số.** Ngưỡng NFR, tiêu chí ra UAT, chỉ tiêu mục tiêu... phải do người dùng hoặc PO chốt. Chưa có thì ghi "cần chốt".
-- **Cuối mỗi bản trả đều có** danh sách Giả định, Cần làm rõ và phần chưa đủ để làm tiếp, để biết chỗ nào chưa chắc.
-- **Yêu cầu luôn trỏ về nguồn.** Mỗi mục có ID, truy được về mục tiêu hoặc người nêu yêu cầu.
-- **Phần pháp lý Việt Nam chỉ là tham khảo.** Dòng nào gắn ⚠️ thì chưa được xác nhận từ văn bản gốc; luôn cần pháp chế xác nhận.
-- Ngôn ngữ trả lời mặc định theo ngôn ngữ người dùng (tiếng Việt).
+## 1. Principles shared by the whole suite
 
-## 2. Danh sách 11 skill
+- **Sourced, not invented.** Content follows BABOK v3 and the Agile Extension v2; tests follow ISTQB CTFL v4.0.1; NFRs follow ISO/IEC 25010:2023; requirement quality adds ISO/IEC/IEEE 29148:2018. Each skill says what comes from which source and what is only its own convention.
+- **No made-up numbers.** NFR thresholds, UAT exit criteria and target metrics come from the user or the product owner. If missing, the skill writes "to be confirmed".
+- **Every output ends with** assumptions, open questions, and what is not enough to continue, so you can see where it is unsure.
+- **Requirements point back to their source.** Each item has an ID and traces to a goal or to who raised it.
+- **Vietnam legal content is reference only.** Lines marked ⚠️ are not confirmed from the original text; legal counsel must confirm.
+- Replies follow the user's language.
 
-| Skill | Dùng khi | Đưa vào | Nhận lại |
+## 2. The 11 skills
+
+| Skill | Use when | Input | Output |
 | --- | --- | --- | --- |
-| `requirements-stakeholders` | Đầu dự án hoặc đầu đợt khai thác, cần biết ai cần gặp, ai quyết định | Mô tả dự án, sơ đồ tổ chức, ghi chép họp | Danh sách stakeholder, ma trận ảnh hưởng, onion, RACI, persona, kế hoạch cộng tác |
-| `business-case-strategy` | Cần biện minh hoặc chọn hướng thay đổi trước khi vào yêu cầu chi tiết | Mô tả vấn đề, dữ liệu chi phí và lợi ích | Hiện trạng, tương lai, khoảng cách, rủi ro, chiến lược, business case, ROI/NPV/IRR, SWOT, KPI |
-| `requirements-elicitation` | Trước hoặc sau buổi gặp stakeholder | Mục tiêu buổi họp hoặc ghi chép họp | Kế hoạch khai thác, bộ câu hỏi, kết quả có nguồn (chưa xác nhận) và danh sách cần xác nhận |
-| `requirements-modelling` | Mô tả bằng chữ chưa đủ rõ | Quy trình, quy tắc, dữ liệu, vai trò | Mô hình quy trình, trạng thái, dữ liệu, bảng quyết định, use case, phạm vi, giao diện, ma trận quyền |
-| `story-writer` | Biến ý tưởng thô thành yêu cầu rõ | Ý tưởng, ghi chép, yêu cầu thô | Story, acceptance criteria, use case, bảng quy tắc nghiệp vụ; hoặc bản rà soát story có sẵn |
-| `nfr-writer` | "Nhanh, an toàn, dễ dùng" cần thành số đo được | Loại sản phẩm, spec hiện có | NFR đo được theo 9 đặc tính ISO 25010:2023, trade-off, danh sách cần xác nhận |
-| `requirements-prioritize` | Xếp backlog, chốt MVP, đánh giá lại khi đổi bối cảnh | Danh sách yêu cầu kèm mã, ràng buộc | Bảng chấm điểm có lý do, thứ tự, lát cắt phát hành, xung đột chưa giải quyết |
-| `requirements-trace` | Kiểm lỗ hổng spec, phân tích tác động khi yêu cầu đổi | PRD, story, NFR, test | Ma trận truy vết, khoảng trống, mâu thuẫn, phân tích tác động |
-| `requirements-review` | Trước khi xin duyệt hoặc giao dev/tester | Tài liệu yêu cầu bất kỳ | Báo cáo phát hiện có mức nghiêm trọng, kết luận sẵn sàng duyệt hay chưa; hoặc kế hoạch buổi review |
-| `requirements-testcases` | Biến yêu cầu thành bộ kiểm thử, lập UAT | Story, AC, quy tắc, bảng quyết định, mô hình trạng thái, NFR | Test case truy vết được, ma trận phủ, gói UAT, chọn test hồi quy sau thay đổi |
-| `requirements-document` | Cần gói yêu cầu để duyệt, bàn giao hoặc ký hợp đồng | Các đầu ra của những skill trên | BRD, PRD hoặc SRS, kiểm nhất quán, danh sách chỗ còn thiếu |
+| `requirements-stakeholders` | Start of a project or elicitation round; you need to know who to meet and who decides | Project description, org chart, meeting notes | Stakeholder list, influence matrix, onion map, RACI, personas, engagement plan |
+| `business-case-strategy` | You must justify or choose a direction for change before detailed requirements | Problem description, cost and benefit data | Current and future state, gap, risk, strategy, business case, ROI/NPV/IRR, SWOT, KPIs |
+| `requirements-elicitation` | Before or after a stakeholder meeting | Meeting goal or meeting notes | Elicitation plan, question set, sourced (unconfirmed) results and a list to confirm |
+| `requirements-modelling` | A text description is not clear enough | Processes, rules, data, roles | Process, state and data models, decision tables, use cases, scope, interfaces, permission matrix |
+| `story-writer` | Turn a raw idea into a clear requirement | Ideas, notes, raw requirements | Stories, acceptance criteria, use cases, business-rule tables; or a review of existing stories |
+| `nfr-writer` | "Fast, secure, easy to use" must become measurable | Product type, existing spec | Measurable NFRs across the 9 ISO 25010:2023 characteristics, trade-offs, a list to confirm |
+| `requirements-prioritize` | Rank a backlog, fix an MVP, re-rank after a change | Requirement list with IDs and constraints | Scored table with reasons, order, release slices, unresolved conflicts |
+| `requirements-trace` | Check a spec for gaps, analyse the impact of a change | PRD, stories, NFRs, tests | Traceability matrix, gaps, contradictions, impact analysis |
+| `requirements-review` | Before asking for approval or handing to dev/testers | Any requirements document | Findings report with severity and a ready-to-approve verdict; or a review-session plan |
+| `requirements-testcases` | Turn requirements into a test set, build UAT | Stories, AC, rules, decision tables, state models, NFRs | Traceable test cases, coverage matrix, UAT package, regression selection after a change |
+| `requirements-document` | You need a package for approval, handover or contract signing | Outputs of the skills above | BRD, PRD or SRS, consistency check, list of what is missing |
 
-## 3. Thứ tự làm việc đề xuất
+## 3. Suggested order
 
-Đây là gợi ý, không bắt buộc. Có thể bỏ bước nếu đã có đầu ra tương ứng.
+A suggestion, not a rule. Skip a step if you already have its output.
 
-1. **Bối cảnh:** `requirements-stakeholders`, rồi `business-case-strategy`.
-2. **Khai thác:** `requirements-elicitation` (lập kế hoạch, sau mỗi buổi họp xử lý ghi chép).
-3. **Viết và mô hình hóa:** `requirements-modelling`, `story-writer`, `nfr-writer`.
-4. **Quyết định:** `requirements-prioritize`.
-5. **Kiểm soát:** `requirements-trace`, `requirements-review`.
-6. **Kiểm chứng:** `requirements-testcases`.
-7. **Đóng gói:** `requirements-document`.
+1. **Context:** `requirements-stakeholders`, then `business-case-strategy`.
+2. **Elicitation:** `requirements-elicitation` (plan first, process notes after each meeting).
+3. **Write and model:** `requirements-modelling`, `story-writer`, `nfr-writer`.
+4. **Decide:** `requirements-prioritize`.
+5. **Control:** `requirements-trace`, `requirements-review`.
+6. **Verify:** `requirements-testcases`.
+7. **Package:** `requirements-document`.
 
-Khi yêu cầu thay đổi: `requirements-trace` (tác động), `requirements-testcases` (chọn test hồi quy), `requirements-review` (kiểm lại sau sửa).
+When a requirement changes: `requirements-trace` (impact), `requirements-testcases` (pick regression tests), `requirements-review` (re-check after the fix).
 
-## 4. Câu lệnh mẫu
+## 4. Example prompts
 
-| Muốn làm gì | Ví dụ |
+| Goal | Example |
 | --- | --- |
-| Phân tích stakeholder | "Lập danh sách stakeholder và RACI cho dự án đặt lịch spa, đây là mô tả…" |
-| Business case | "Lập business case cho việc tự động hóa nhắc lịch; chi phí và lợi ích như bảng này…" |
-| Xử lý ghi chép họp | "Đây là ghi chép buổi họp với lễ tân, tách ra điều đã nói, suy luận, giả định và danh sách cần xác nhận." |
-| Mô hình | "Dựng bảng quyết định cho quy tắc hủy lịch từ mô tả này." |
-| Story | "Viết story và AC cho tính năng đổi lịch hẹn; hỏi tôi nếu thiếu thông tin." |
-| NFR | "Spec này có đủ NFR chưa? Sản phẩm là web app nội bộ có dữ liệu cá nhân." |
-| Ưu tiên | "Xếp 20 story này thành 3 lát cắt phát hành, ràng buộc là cuối quý." |
-| Truy vết | "Lập ma trận truy vết và chỉ ra chỗ hở; nếu bỏ story S-07 thì ảnh hưởng gì?" |
-| Rà soát | "Rà soát PRD này và cho biết đã sẵn sàng duyệt chưa." |
-| Test | "Sinh test case và ma trận phủ từ các AC này; giá trị biên theo 3 giá trị." |
-| UAT | "Lập gói UAT cho luồng đặt lịch đầu-cuối." |
-| Tài liệu | "Lắp BRD từ các sản phẩm sau và liệt kê chỗ còn thiếu." |
+| Stakeholder analysis | "List the stakeholders and a RACI for a spa booking project; here is the description..." |
+| Business case | "Build a business case for automating appointment reminders; costs and benefits as in this table..." |
+| Meeting notes | "Here are notes from the meeting with the receptionist; separate what was said, what is inferred, assumptions, and a list to confirm." |
+| Modelling | "Build a decision table for the cancellation rule from this description." |
+| Story | "Write the story and AC for rescheduling an appointment; ask me if information is missing." |
+| NFR | "Does this spec have enough NFRs? It is an internal web app with personal data." |
+| Priority | "Rank these 20 stories into 3 release slices; the constraint is end of quarter." |
+| Traceability | "Build the traceability matrix and show the gaps; if story S-07 is dropped, what is affected?" |
+| Review | "Review this PRD and tell me if it is ready for approval." |
+| Tests | "Generate test cases and a coverage matrix from these AC; boundary values with 3 values." |
+| UAT | "Build a UAT package for the end-to-end booking flow." |
+| Document | "Assemble a BRD from these outputs and list what is still missing." |
 
-## 5. Nguồn và độ tin cậy
+## 5. Sources and how far each was verified
 
-| Nguồn | Dùng cho | Mức đối chiếu |
+| Source | Used for | Verification |
 | --- | --- | --- |
-| BABOK v3 | Hầu hết skill (khai thác, phân tích, truy vết, rà soát...) | Đọc từ PDF, diễn đạt lại; số mục được trích; một số mục chưa đọc (xem mục 6) |
-| Agile Extension v2 | Story, BDD, persona, backlog | Đọc từ PDF, diễn đạt lại |
-| ISO/IEC 25010:2023 | NFR | Tên đặc tính khớp bản 2023; cột "Ý nghĩa" là diễn đạt của skill, chưa đối chiếu với định nghĩa chính thức |
-| ISTQB CTFL v4.0.1 | Thiết kế test: phân vùng tương đương, giá trị biên, bảng quyết định, chuyển trạng thái, UAT, ATDD | Đã đối chiếu với PDF |
-| ISO/IEC/IEEE 29148:2018 | Đặc tính chất lượng yêu cầu, từ khóa, thuộc tính, phương pháp xác minh, nội dung BRS/SRS | Đã đối chiếu với bản chuẩn (điều 5.2, 6.5.2.2, 9.2, 9.3, 9.6) |
-| Pháp luật Việt Nam và EU AI Act | NFR pháp lý (`legal-vn.md` trong `nfr-writer`) | Kiểm lần cuối 24/10/2026; một phần đọc từ văn bản gốc, một phần chỉ từ nguồn thứ cấp (gắn ⚠️) |
+| BABOK v3 | Most skills (elicitation, analysis, traceability, review...) | Read from the PDF and paraphrased; section numbers cited; some sections not read (see section 6) |
+| Agile Extension v2 | Stories, BDD, personas, backlog | Read from the PDF and paraphrased |
+| ISO/IEC 25010:2023 | NFRs | Characteristic names match the 2023 edition; the "meaning" column is the skill's own wording, not compared with the official definitions |
+| ISTQB CTFL v4.0.1 | Test design: equivalence partitioning, boundary values, decision tables, state transition, UAT, ATDD | Compared with the PDF |
+| ISO/IEC/IEEE 29148:2018 | Requirement quality characteristics, keywords, attributes, verification methods, BRS/StRS/SRS/SyRS content | Clauses 5.2, 6.5.2.2 and 9.2 to 9.6 compared against the standard |
+| Vietnam law and EU AI Act | Legal NFRs (`skills/nfr-writer/references/legal-vn.md`) | Last verified 24/10/2026; partly read from original texts, partly from secondary sources only (marked ⚠️) |
 
-Repo này không chứa PDF hay bản chuẩn gốc của các nguồn trên; skill chỉ diễn đạt lại và trích số mục.
+This repository contains no PDFs or original text of these sources; the skills paraphrase and cite section numbers only.
 
-## 6. Giới hạn đã biết và việc còn treo
+## 6. Known limits and open items
 
-- **Pháp lý (⚠️):** chưa đọc toàn văn NĐ 330/2026 và NĐ 142/2026; danh mục AI rủi ro cao (QĐ 33/2026/QĐ-TTg) mới có bản trích; chưa xác nhận tình trạng NĐ 53/2022, NĐ 85/2016, TT 12/2022. Khung phạt NĐ 330 lấy từ nguồn thứ cấp nên không ghi con số vào NFR. Cần pháp chế xác nhận trước khi đưa vào hợp đồng hay spec.
-- **ISO 29148:** StRS (9.4) và SyRS (9.5) mới có mục lục, chưa đọc nội dung.
-- **BABOK/Agile Extension:** một số mục chưa đọc (ví dụ 10.3, 10.4, 10.6, 10.8, 10.49, 8.3, 8.4, chương 3.1 và 3.3 đến 3.5, các chương 1 đến 6 và 7.8 đến 7.17, 7.22 đến 7.24 của Agile Extension).
-- **Chưa chạy thử trên tài liệu thật.** Nên thử cả bộ trên một PRD hoặc ghi chép họp thật và ghi lại chỗ skill làm chưa tốt.
-- Skill không thay QA, pháp chế hay người ra quyết định: nó chuẩn bị đầu vào để người có thẩm quyền xác nhận.
+- **Legal (⚠️):** the full text of Decree 330/2026 and Decree 142/2026 has not been read; the high-risk AI list (Decision 33/2026/QĐ-TTg) exists only as an excerpt; the status of Decree 53/2022, Decree 85/2016 and Circular 12/2022 is unconfirmed. The Decree 330 penalty bands come from secondary sources, so no figure is written into NFRs. Legal counsel must confirm before anything goes into a contract or spec.
+- **BABOK / Agile Extension:** some sections have not been read (for example BABOK 10.3, 10.4, 10.6, 10.8, 10.49, 8.3, 8.4, chapters 3.1 and 3.3 to 3.5; Agile Extension chapters 1 to 6, 7.8 to 7.17 and 7.22 to 7.24).
+- **Not yet run on a real document.** Try the whole suite on a real PRD or meeting notes and record where a skill does poorly.
+- The skills do not replace QA, legal counsel or the decision maker: they prepare input for the person with authority to confirm.
 
-Cài đặt và cập nhật: xem [README](../README.md#cài-đặt).
+Install and update: see the [README](../README.md#install).

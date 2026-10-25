@@ -1,0 +1,21 @@
+# Decision tables, use cases
+
+## Decision modelling (BABOK 10.17, pp. 265–269; paraphrased)
+**Purpose**: show how a repeatable business decision is made. Three elements: decision, information, knowledge. The rules within a decision can be definitional or behavioural (10.9).
+- **Decision table**: a compact representation of **all the rules for one atomic decision**. Each row (or column) is a rule; the condition columns map to data elements; a result/action column. When all the conditions of a row are true (or left blank) that row is true and its result occurs. BABOK example: loan limit by amount and age.
+- **Decision tree**: each path to a leaf is a rule; each level is a data element; suits customer segmentation; used less than tables.
+- **Decision requirements diagram (DRD)**: for complex decisions, broken into sub-decisions. Elements: Decision (rectangle), Input data (oval), Business knowledge model (rectangle with cut corners: a set of rules, tables, trees or a predictive model), Knowledge source (a document or person that is the basis). Solid arrow: information requirement; dashed: knowledge requirement; dashed with a rounded end: authority.
+**How to do it with the skill**
+1. Name the decision as a question ("Is cancellation allowed?").
+2. List the conditions (input data) and the possible outcomes.
+3. Build a table with every combination (or merge with a "don't care" cell where a condition has no effect); mark a combination with an unknown result as an open question.
+4. A decision with ≥ 5 conditions or with sub-decisions: split into a DRD with several small tables.
+**Check** (the skill's own): all combinations present (none missed); no two rows overlapping for the same input with different results; results valid against the BR; conditions use the right elements from the data dictionary; empty/don't-care cells have a consistent meaning.
+BABOK limits: adds one more kind of diagram besides process (superfluous if the decision is simple and tightly bound to the process); captures only rules belonging to known decisions; may make the organization believe it already has a standard way of deciding; does not directly touch behavioural rules; needs clear terminology.
+
+## Use cases and scenarios (10.47, pp. 356–359)
+A **use case** describes the interaction between the primary actor, the solution and secondary actors to achieve the primary actor's goal, including the possible outcomes (main, alternative, exception flows), written from the actor's viewpoint and **not describing internal operation**. A **scenario** is one way of achieving the goal (a sequence of steps); a use case contains many scenarios.
+**Description elements** (no mandatory format): Name (verb + noun), Goal (the successful outcome from the primary actor's viewpoint), Actors (primary starts the use case; secondary supports), Preconditions (facts that must be true beforehand; not checked in the use case), Trigger (usually an action of the primary actor; can be time), Flow of events (main flow = the shortest/simplest successful path; alternative flows still reach the goal; exception flows when the goal is not reached and the desired response), Post-conditions (true for every flow; success guarantee and minimal guarantee, for example security and data integrity).
+**Use case diagram**: actors, use cases, relationships. **Association** shows an actor has access to a function. **Extend** (inserts additional behaviour; the extended use case must be able to run on its own), **Include** (uses a common function or splits out complex logic; the included use case need not be self-sufficient if no actor triggers it). Distinguish a business use case (interaction with a process/function) from a system use case (actor with the application).
+**How to do it with the skill**: ask the actor's goal first, then the shortest main flow, then for each step "what can go wrong?" to get the exception flows; move rules to BR; make the postconditions checkable. The table template is in `templates/model-examples.md` section 6.
+**Check**: the goal is at the actor's viewpoint; each step says who does it; exception flows have a destination and a response; postconditions hold for every flow; extend/include used with the right meaning; no internal design described.
