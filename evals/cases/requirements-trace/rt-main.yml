@@ -50,13 +50,13 @@ checks:
     controls:
       - id: us-01
         anchor: 'US-01'
-        flag: 'orphan|abandon|no AC|no goal|not referenced|does not exist|no acceptance'
+        flag: 'orphan|abandon|no ACs?\b(?! for)|no goal|not referenced|does not exist|no acceptance'
       - id: goal-01
         anchor: 'GOAL-01'
-        flag: 'orphan|abandon|no AC|no goal|not referenced|does not exist|no acceptance'
+        flag: 'orphan|abandon|no ACs?\b(?! for)|no goal|not referenced|does not exist|no acceptance'
       - id: us-03
         anchor: 'US-03'
-        flag: 'orphan|abandon|no AC|no goal|not referenced|does not exist|no acceptance'
+        flag: 'orphan|abandon|no ACs?\b(?! for)|no goal|not referenced|does not exist|no acceptance'
   - id: matrix-links-are-true
     type: links
     section: [Matrix]

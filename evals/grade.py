@@ -55,6 +55,9 @@ EXAMPLE_DATA_RE = re.compile(
     r"|\b\d{1,2}(?:st|nd|rd|th)?\s+(?:of\s+)?" + MONTH + r"\b(?:,?\s+\d{4})?"     # 10 Nov, 3rd March 2027
     r"|\b" + MONTH + r"\s+\d{1,2}(?:st|nd|rd|th)?\b(?:,?\s+\d{4})?"               # Nov 10, March 3rd
     r"|\b00\s*(?:minutes?|mins?|seconds?|secs?)\b")                                   # "24 hours 00 minutes"
+VARIABLE_STEP_RE = re.compile(r"\b[A-Za-z]\s?[-+]\s?\d{1,2}\b(?![\d:.])")  # N-1, N+1: a parameter, not a figure
+COUNTER_RESET_RE = re.compile(r"(?i)\b(?:resets?|resetting|counter|count)\b[^.\n]{0,30}?\bto 0\b")
+QUOTED_RE = re.compile(r'"[^"\n]*"|\u201c[^\u201d\n]*\u201d')
 GWT_RE = re.compile(r"\b(?:given|when|then)\b", re.I)
 # "F2", "Q4", "A1", "AC3", "AC 3": labels of findings, questions, assumptions and criteria the answer numbers itself
 LABEL_RE = re.compile(r"\b(?:[FQA]\d{1,3}|AC\s?\d{1,3})\b")
@@ -126,6 +129,11 @@ def clean_title(title):
 
 def title_key(title):
     return clean_title(title).lower()
+
+
+def expand_cant(s):
+    """`can't be tested` is `cannot be tested`."""
+    return re.sub(r"(?i)\bcan['\u2019]t\b", "cannot", s)
 
 
 def strip_emphasis(s):
@@ -329,6 +337,8 @@ def clean_for_numbers(s, examples=False):
     s = ID_RE.sub(" ", s)
     s = REF_NUMBER_RE.sub(" ", s)
     s = LABEL_RE.sub(" ", s)
+    s = VARIABLE_STEP_RE.sub(" ", s)
+    s = COUNTER_RESET_RE.sub(" ", s)
     s = re.sub(r"https?://\S+", " ", s)
     s = re.sub(r"(?m)^\s*\|\s*\d+\s*\|", "|", s)  # row numbers in the first column of a table
     return re.sub(r"(?m)^\s*(?:#+\s*)?(?:\d+(?:\.\d+)+[.)]?|\d+[.)])\s", " ", s)
@@ -356,11 +366,11 @@ def scope(ctx, p):
     """(text to check, error). `section` limits the text; `section_optional` tolerates absence."""
     sec = p.get("section")
     if sec is None:
-        return strip_emphasis(ctx.text), None
+        return expand_cant(strip_emphasis(ctx.text)), None
     body = get_section(ctx.text, sec)
     if body is None:
         return ("", None) if p.get("section_optional") else (None, f"section {sec} not found")
-    return strip_emphasis(body), None
+    return expand_cant(strip_emphasis(body)), None
 
 
 # ---------------------------------------------------------------------- checks
@@ -556,6 +566,7 @@ def chk_no_vague_ac(ctx, p):
     for b in blocks(body):
         if CONCRETE_AMOUNT_RE.search(re.sub(r"^\s*\d+[.)]\s", "", b)):
             continue
+        b = QUOTED_RE.sub(" ", b)  # a quoted message ("Không tìm thấy đơn phù hợp") is wording, not a requirement
         for w in words:
             if re.search(r"(?<!\w)" + re.escape(w) + r"(?!\w)", b, re.I):
                 bad.append(f"{w!r} in {b[:50]!r}")

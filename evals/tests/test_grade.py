@@ -772,6 +772,57 @@ class LiveOutputFixes(unittest.TestCase):
                 self.assertFalse(run(c, bad, **src))
 
 
+class FiveStrictChecks(unittest.TestCase):
+    """The five strict spots found in the first live run; each is tested both ways."""
+
+    def test_second_the_ordinal_is_not_seconds(self):
+        c = CASES["sw-main"]["checks"]
+        c = next(x for x in c if x["id"] == "nfr-not-in-ac")
+        body = "## Acceptance criteria\n"
+        for ok in ["5. Second appointment with the same doctor", "The second move is refused"]:
+            with self.subTest(ok):
+                self.assertTrue(run(c, body + ok))
+        for bad in ["1. The move completes within 3 seconds", "1. Done in 3-second", "1. It takes 2.5 secs", "1. It answers in seconds",
+                    "1. Done in 3 sec"]:
+            with self.subTest(bad):
+                self.assertFalse(run(c, body + bad))
+
+    def test_parameters_and_counter_reset_are_not_figures(self):
+        c = {"type": "numbers_from_input"}
+        src = dict(prompt="Lock after a few wrong passwords.")
+        for ok in ["Given N\u22121 wrong passwords, when the Nth is sent", "after N-1 failures", "the counter resets to 0",
+                   "a correct login sets the failure count back to 0"]:
+            with self.subTest(ok):
+                self.assertTrue(run(c, ok, **src))
+        for bad in ["after 5 wrong passwords", "within 0 seconds", "locks for 10 minutes", "the limit is 3-1", "retry after 0 tries",
+                    "returns 1 result"]:
+            with self.subTest(bad):
+                self.assertFalse(run(c, bad, **src))
+
+    def test_quoted_message_is_not_a_vague_requirement(self):
+        c = {"type": "no_vague_ac"}
+        self.assertTrue(run(c, '5. When nothing matches, show "Không tìm thấy đơn hàng phù hợp"'))
+        self.assertTrue(run(c, '5. The page shows \u201cNo suitable doctor\u201d'))
+        self.assertFalse(run(c, '5. The result is phù hợp and the page says "None"'))
+        self.assertFalse(run(c, '5. The search is fast, as in "fast".'))
+
+    def test_cant_is_cannot(self):
+        c = {"type": "match", "pattern": "cannot be tested"}
+        self.assertTrue(run(c, "The story can't be tested."))
+        self.assertTrue(run(c, "The story can\u2019t be tested."))
+        self.assertTrue(run(c, "The story cannot be tested."))
+        self.assertFalse(run(c, "The story can be tested."))
+        self.assertFalse(run(c, "The story couldn't be tested."))
+
+    def test_no_ac_for_a_rule_is_not_a_missing_ac(self):
+        ctl = next(x for x in CASES["rt-main"]["checks"] if x["id"] == "seeded-gaps-found")["controls"][0]
+        c = {"type": "rows", "controls": [ctl]}
+        self.assertTrue(run(c, "| 10 | Missing cases | US-01 has no AC for BR-01 (a second booking) | Medium |"))
+        self.assertFalse(run(c, "| 3 | Story with no AC | US-01 | High |"))
+        self.assertFalse(run(c, "| 3 | Story with no AC. | US-01 has no AC. | High |"))
+        self.assertFalse(run(c, "| 1 | Orphan | US-01 | High |"))
+
+
 class Isolation(unittest.TestCase):
     def status(self, meta, cid="rt-standalone"):
         return grade.grade_case(CASES[cid], golden(cid, "good"), meta)

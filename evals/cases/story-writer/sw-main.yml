@@ -33,7 +33,7 @@ checks:
   - id: nfr-not-in-ac
     type: not_match
     section: [Acceptance criteria, AC]
-    pattern: '\bseconds?\b'
+    pattern: '\b(?:\d+(?:[.,]\d+)?\s*-?\s*(?:seconds?|secs?)|seconds)\b'
   - id: nfr-handed-off
     type: match
     section: [NFRs found, NFRs, Non-functional]
