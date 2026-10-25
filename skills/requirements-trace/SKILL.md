@@ -34,3 +34,10 @@ ISO/IEC/IEEE 29148:2018, 5.2.8 (the standard itself was read) lists example attr
 - `references/coverage-checks.md`: coverage checks, impact analysis.
 - `references/architecture-approval-review.md`: requirements architecture, link quality, change assessment, approval, review (BABOK 7.4, 5.4, 5.5, 10.37).
 - `templates/trace-matrix.md`: matrix template and gap report.
+
+## Conventions
+
+- Provenance of project information: `[Stated]` the user or a document says it outright (name the source); `[Inferred]` drawn from what was said; `[Assumption]` no basis yet, to be confirmed. Use a label only where the reader needs to know which one it is.
+- IDs: use the project's own scheme if it has one. Otherwise default to `GOAL-xx`, `FR-xx`, `US-xx`, `AC-xx.y`, `BR-xx`, `NFR-<characteristic>-xx`, `TC-xx`, `UAT-xx`, `SH-xx`.
+- An ID never changes and is never reused. An ID you choose yourself is marked "proposed". Do not create an ID for something the user has not supplied; a `TC-` code goes only to a test that exists or that `requirements-testcases` writes.
+- In `nfr-writer`, the evidence types (a), (b), (c) say where a threshold comes from; they are not provenance labels.
