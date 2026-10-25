@@ -22,7 +22,7 @@ Goal: output that is **understood on reading and verifiable by testing**. The ma
 4. Write using `templates/story-template.md`.
 4b. A story whose turn has not come (end of the backlog): write only a preliminary version and state clearly that full AC do not exist yet (see `references/agile-context.md`).
 5. **Self-check** against `references/quality-checks.md` before returning: look for defects in each AC, check INVEST, check the boundary cases.
-6. Every output ends with: **Assumptions**, **To clarify**, **NFRs found** (if any).
+6. Every output ends with: **Assumptions**, **To clarify**, **NFRs found** (if any). Mark each entry of **Assumptions** `[Assumption]`, and mark a Scope, Preconditions or Related rules line that the user did not state `[Inferred]` or `[Assumption]`. Never mark a number: numbers stay out (rule 1).
 
 ## Review mode
 Take an existing story/FR. Return a table: item | problem | why it is a problem | how to rewrite. Then give the full rewritten version. No vague criticism; every comment points to the exact sentence at fault.
@@ -33,3 +33,10 @@ Take an existing story/FR. Return a table: item | problem | why it is a problem 
 - `references/business-rules.md`: writing and classifying business rules (BABOK 10.9).
 - `references/agile-context.md`: decomposition, elaboration, backlog, job story, BDD, story map (BABOK 10.2; Agile Extension v2 7.1–7.4, 7.18–7.21).
 - `templates/story-template.md`: template and before/after example.
+
+## Conventions
+
+- Provenance of project information: `[Stated]` the user or a document says it outright (name the source); `[Inferred]` drawn from what was said; `[Assumption]` no basis yet, to be confirmed. Use a label only where the reader needs to know which one it is.
+- IDs: use the project's own scheme if it has one. Otherwise default to `GOAL-xx`, `FR-xx`, `US-xx`, `AC-xx.y`, `BR-xx`, `NFR-<characteristic>-xx`, `TC-xx`, `UAT-xx`, `SH-xx`.
+- An ID never changes and is never reused. An ID you choose yourself is marked "proposed". Do not create an ID for something the user has not supplied; a `TC-` code goes only to a test that exists or that `requirements-testcases` writes.
+- In `nfr-writer`, the evidence types (a), (b), (c) say where a threshold comes from; they are not provenance labels.

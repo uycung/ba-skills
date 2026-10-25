@@ -1,13 +1,13 @@
 # Stakeholder register template and example
 
-Labels: [S] = Stated (source is explicit), [I] = Inferred, [A] = Assumption. The example below is assumed, for illustration.
+Labels: [Stated] (source is explicit), [Inferred], [Assumption]. The example below is assumed, for illustration.
 
 ## Register
 | ID | Person/group | BABOK role | Role in the initiative | Attitude | Decision authority | Influence | Interest/Impact | Source | To clarify |
 |---|---|---|---|---|---|---|---|---|---|
-| SH-01 | Operations Director (sponsor) | Sponsor | Accountable for the initiative, approves the budget | Supportive [I] | Approves scope and budget [S] | High [I] | High [I] | Meeting notes 12/10 | Who stands in when absent? |
-| SH-02 | Receptionists (group of 5) | End user | Use it daily to book and change appointments | ? | None [I] | Low [I] | High [I] | Process diagram | Who represents the group? |
-| SH-03 | SMS provider | Supplier | Sends appointment reminders | ? | None | Low [I] | Low [I] | Contract | Sending limits? |
+| SH-01 | Operations Director (sponsor) | Sponsor | Accountable for the initiative, approves the budget | Supportive [Inferred] | Approves scope and budget [Stated] | High [Inferred] | High [Inferred] | Meeting notes 12/10 | Who stands in when absent? |
+| SH-02 | Receptionists (group of 5) | End user | Use it daily to book and change appointments | ? | None [Inferred] | Low [Inferred] | High [Inferred] | Process diagram | Who represents the group? |
+| SH-03 | SMS provider | Supplier | Sends appointment reminders | ? | None | Low [Inferred] | Low [Inferred] | Contract | Sending limits? |
 | SH-04 | (unknown) | Regulator | Rules on customer data | ? | ? | ? | ? | Legal documents | Who is in charge of legal? |
 
 BABOK roles that do not exist in the project: write "not applicable" + the reason.

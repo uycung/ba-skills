@@ -1,7 +1,7 @@
 # Prioritization table template
 
 **Context**: objective, phase, constraints (deadline, budget, regulation), date, participants.
-**Agreed criteria**: ...
+**Agreed criteria**: ... (a criterion not yet agreed: `[Assumption]`)
 
 ## Mandatory group (not scored)
 | Code | Why it is mandatory (law/contract/dependency) | Source |

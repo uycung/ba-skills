@@ -37,3 +37,10 @@ A markdown table of NFRs (one row per requirement), followed by "Trade-offs to s
 - `references/babok-mapping.md`: mapping to BABOK v3 when the user uses BABOK terms; note that transition requirements are not NFRs.
 - `references/product-profiles.md`: web, mobile, internal, AI.
 - `templates/nfr-template.md`: NFR template and examples.
+
+## Conventions
+
+- Provenance of project information: `[Stated]` the user or a document says it outright (name the source); `[Inferred]` drawn from what was said; `[Assumption]` no basis yet, to be confirmed. Use a label only where the reader needs to know which one it is.
+- IDs: use the project's own scheme if it has one. Otherwise default to `GOAL-xx`, `FR-xx`, `US-xx`, `AC-xx.y`, `BR-xx`, `NFR-<characteristic>-xx`, `TC-xx`, `UAT-xx`, `SH-xx`.
+- An ID never changes and is never reused. An ID you choose yourself is marked "proposed". Do not create an ID for something the user has not supplied; a `TC-` code goes only to a test that exists or that `requirements-testcases` writes.
+- In `nfr-writer`, the evidence types (a), (b), (c) say where a threshold comes from; they are not provenance labels.

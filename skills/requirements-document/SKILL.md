@@ -25,6 +25,7 @@ If the input has no requirement that already carries an ID and a source (meeting
 7. **Do not hide assumptions, constraints, dependencies, risks, open questions**; each has its own section.
 8. **An unapproved document is stamped as unapproved**; include the readiness gate so that `requirements-review` checks before approval is sought.
 9. **Keywords shall / will / should**: when the sentences must follow a keyword convention (contract, ISO/IEC/IEEE 29148) and the user or project has not stated it, ask which convention applies before you rewrite any sentence; never define it yourself. Without such a request keep the source wording.
+10. When you copy an item that carries a provenance label (`[Stated]`, `[Inferred]`, `[Assumption]`), keep the label as the source gave it; do not add or upgrade one.
 
 ## Process
 1. **Collect the inputs**: list the products that exist (goals and business case, stakeholders, stories/FRs/use cases, BR, NFRs, models, traceability matrix, open questions). If the user only provides raw material (meeting notes, ideas), stop and go to `requirements-elicitation`/`story-writer` first.
@@ -43,3 +44,10 @@ Goals, current/future state, business case: `business-case-strategy`. Stakeholde
 - `references/assembly-checks.md`: consistency, status, version, approval checks.
 - `references/iso29148-content.md`: content of the BRS (9.3), StRS (9.4), SyRS (9.5) and SRS (9.6) per ISO/IEC/IEEE 29148:2018, mapped into the skill's frame, and which items are missing.
 - `templates/brd-template.md`, `templates/prd-template.md`, `templates/srs-template.md`.
+
+## Conventions
+
+- Provenance of project information: `[Stated]` the user or a document says it outright (name the source); `[Inferred]` drawn from what was said; `[Assumption]` no basis yet, to be confirmed. Use a label only where the reader needs to know which one it is.
+- IDs: use the project's own scheme if it has one. Otherwise default to `GOAL-xx`, `FR-xx`, `US-xx`, `AC-xx.y`, `BR-xx`, `NFR-<characteristic>-xx`, `TC-xx`, `UAT-xx`, `SH-xx`.
+- An ID never changes and is never reused. An ID you choose yourself is marked "proposed". Do not create an ID for something the user has not supplied; a `TC-` code goes only to a test that exists or that `requirements-testcases` writes.
+- In `nfr-writer`, the evidence types (a), (b), (c) say where a threshold comes from; they are not provenance labels.

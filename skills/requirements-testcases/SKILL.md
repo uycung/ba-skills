@@ -22,7 +22,7 @@ Goal: every agreed requirement has at least one way to **verify pass/fail**, and
 2. **An AC that cannot be verified is sent back, not covered with a guessed test.** Vague words ("fast", "friendly") or missing concrete values: write the question and hand off to `story-writer` / `nfr-writer`.
 3. **One main idea per test**, one result that can be verified by observation. BDD scenarios: exactly one WHEN (Agile Extension 7.2.3.2).
 4. **Cover the unhappy paths too**: exceptions, boundary values, bad data, missing permission, invalid state. Every rule with a threshold has a test on both sides of the threshold.
-5. **Sample data is an assumption; label it.** Never use real personal data, even when the user supplies it (a name, a phone number): decline in one sentence and use clearly fake values, marked as fake (for example "Test Patient 01", 0900000000 FAKE).
+5. **Sample data is an assumption; label it `[Assumption]` in the Data and Precondition cells.** Never use real personal data, even when the user supplies it (a name, a phone number): decline in one sentence and use clearly fake values, marked as fake (for example "Test Patient 01", 0900000000 FAKE).
 6. **Report coverage honestly**: say which requirements have no test yet, which tests cannot be traced to a source, and which parts the skill cannot design (they need an environment, real data or an external system).
 7. UAT is performed by **business people** in business language; do not write UAT as a technical script.
 
@@ -48,3 +48,10 @@ Vague story/AC: `story-writer`. NFR without a measure: `nfr-writer`. Traceabilit
 - `references/uat.md`: UAT, entry/exit criteria, business scenarios, acceptance decision.
 - `references/test-quality.md`: checking test quality and coverage.
 - `templates/test-case-template.md`: test case template, coverage matrix, example.
+
+## Conventions
+
+- Provenance of project information: `[Stated]` the user or a document says it outright (name the source); `[Inferred]` drawn from what was said; `[Assumption]` no basis yet, to be confirmed. Use a label only where the reader needs to know which one it is.
+- IDs: use the project's own scheme if it has one. Otherwise default to `GOAL-xx`, `FR-xx`, `US-xx`, `AC-xx.y`, `BR-xx`, `NFR-<characteristic>-xx`, `TC-xx`, `UAT-xx`, `SH-xx`.
+- An ID never changes and is never reused. An ID you choose yourself is marked "proposed". Do not create an ID for something the user has not supplied; a `TC-` code goes only to a test that exists or that `requirements-testcases` writes.
+- In `nfr-writer`, the evidence types (a), (b), (c) say where a threshold comes from; they are not provenance labels.

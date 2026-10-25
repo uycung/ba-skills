@@ -45,3 +45,10 @@ Based on BABOK v3 chapter 6 (Strategy Analysis: 6.1–6.4), 10.7 (Business Cases
 
 ## BABOK sections not read (say so plainly if relevant)
 Not read: Business Capability Analysis (10.6), Business Model Canvas (10.8), Balanced Scorecard (10.3), Benchmarking and Market Analysis (10.4; the frameworks 5 Forces, PEST, STEEP, CATWOE are known by name only, through section 6.1), Vendor Assessment (10.49), chapters 8.3 and 8.4 (solution limitations, enterprise limitations). Decision Analysis (10.16) was read only in part. The source documents contain no investment appraisal standard or accounting standard; the discount rate and thresholds are set by the organization.
+
+## Conventions
+
+- Provenance of project information: `[Stated]` the user or a document says it outright (name the source); `[Inferred]` drawn from what was said; `[Assumption]` no basis yet, to be confirmed. Use a label only where the reader needs to know which one it is.
+- IDs: use the project's own scheme if it has one. Otherwise default to `GOAL-xx`, `FR-xx`, `US-xx`, `AC-xx.y`, `BR-xx`, `NFR-<characteristic>-xx`, `TC-xx`, `UAT-xx`, `SH-xx`.
+- An ID never changes and is never reused. An ID you choose yourself is marked "proposed". Do not create an ID for something the user has not supplied; a `TC-` code goes only to a test that exists or that `requirements-testcases` writes.
+- In `nfr-writer`, the evidence types (a), (b), (c) say where a threshold comes from; they are not provenance labels.
