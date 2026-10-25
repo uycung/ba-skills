@@ -10,6 +10,7 @@ The suite helps a business analyst work with an AI agent from project start to h
 - **No made-up numbers.** NFR thresholds, UAT exit criteria and target metrics come from the user or the product owner. If missing, the skill writes "to be confirmed".
 - **Every output ends with** assumptions, open questions, and what is not enough to continue, so you can see where it is unsure.
 - **Requirements point back to their source.** Each item has an ID and traces to a goal or to who raised it.
+- **One label set and one ID scheme.** Every skill carries the same `## Conventions` block (checked by `scripts/validate.py`). Provenance is `[Stated]` (the user or a document says it, with the source), `[Inferred]` (drawn from what was said) or `[Assumption]` (no basis yet). IDs follow your project's scheme if it has one; otherwise the defaults `GOAL-xx`, `FR-xx`, `US-xx`, `AC-xx.y`, `BR-xx`, `NFR-<characteristic>-xx`, `TC-xx`, `UAT-xx`, `SH-xx`. An ID you choose yourself is marked "proposed", and an ID is never created for something you did not supply.
 - **Vietnam legal content is reference only.** Lines marked ⚠️ are not confirmed from the original text; legal counsel must confirm.
 - Replies follow the user's language.
 
