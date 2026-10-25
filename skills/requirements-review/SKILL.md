@@ -13,7 +13,7 @@ Framework from BABOK v3: Verify Requirements (7.2), Validate Requirements (7.3),
 Always say which question the report is answering. Final quality is decided by the stakeholders (7.2.2): the skill only points out where the risks are.
 
 ## Hard rules
-1. **Every finding points to the exact sentence/section/code at fault**, names the characteristic violated, why it is a problem, and how to fix it. No vague remarks like "not clear".
+1. **Every finding points to the exact sentence/section/code at fault**, names the characteristic violated, why it is a problem, and how to fix it. No vague remarks like "not clear". **Every row of the Findings table gives a code or a quotation in the Item column.** A remark about the whole document (no out-of-scope note, no priorities, no glossary) goes in its own section "Document-level notes", outside the table.
 2. **Never change business content yourself.** You may propose rewording; where information is missing, turn it into a question with someone to answer it; do not fill in numbers or guess rules. **Never write new acceptance criteria or stories**, not even a skeleton with placeholders, and not when the user asks: for a missing AC, state what is missing and ask; send the writing to `story-writer`.
 3. **Distinguish certain defects from suspicions.** Certain defects: self-contradiction within the document, a missing mandatory field, a vague word with no criterion. Suspicions: need confirmation from someone who knows the business; record as "suspicion".
    The Type column of the findings table holds only **Defect** or **Suspicion**. "Suggestion" is a level, never a type.

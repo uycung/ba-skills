@@ -15,6 +15,11 @@ Number of findings: Blocker n, Should fix n, Suggestion n. Level criteria: Block
 | # | Level | Item (code/quoted text) | Characteristic | Problem and why | Proposal | Type (defect/suspicion) |
 |---|---|---|---|---|---|---|
 
+Every row names a code or quotes the text in the Item column.
+
+### Document-level notes
+Remarks about the whole document (no out-of-scope note, no priorities, no glossary). Not rows of the table above. Omit the section when there are none.
+
 ## 4. Recurring defect patterns
 - ... (appears in n items: ...)
 
