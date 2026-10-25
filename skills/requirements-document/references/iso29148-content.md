@@ -115,4 +115,4 @@ Note when using: 9.6.6 and 9.6.20 stress that the descriptive parts are **not re
 ## How to use in the skill
 - When creating a BRD/SRS for a user with no mandatory template: use the skill's frame as before; do not say it is "per 29148".
 - When the user says it must follow 29148: choose the right document first (BRS 9.3, StRS 9.4, SyRS 9.5 or SRS 9.6; ask which one the contract names), then run its table above as a checklist, list the "Not yet available" content, ask whether the user wants to add it or record the reason for omitting it; annotate the document "content was compared with clause 9.x of ISO/IEC/IEEE 29148:2018 (state which); the person responsible for compliance must confirm".
-- When writing each requirement sentence: use the keyword convention and the list of words to avoid in `requirements-review/references/iso29148.md`.
+- When writing each requirement sentence: use the keyword convention and the list of words to avoid in the `requirements-review` skill (its 29148 reference), if installed; otherwise ask the user which keyword convention the project uses.

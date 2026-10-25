@@ -34,7 +34,7 @@ Always say which question the report is answering. Final quality is decided by t
 - **C. Re-check after fixes**: step 6.
 
 ## Collaboration with other skills
-Missing links or coverage found: hand off to `requirements-trace`. Story/AC to rewrite: `story-writer`. NFR without a measure: `nfr-writer`. A wrong or incomplete model: `requirements-modelling`. Tracking items: format in `requirements-elicitation/references/item-tracking.md`.
+Missing links or coverage found: hand off to `requirements-trace`. Story/AC to rewrite: `story-writer`. NFR without a measure: `nfr-writer`. A wrong or incomplete model: `requirements-modelling`. Tracking items: short form in `templates/review-report.md`; the full attribute list is in the `requirements-elicitation` skill (item tracking), if installed.
 
 ## Reference files
 - `references/quality-characteristics.md`: the 9 characteristics, check questions, typical defects, fixes.

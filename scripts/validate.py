@@ -12,9 +12,10 @@ Repo-wide:
   - relative Markdown links in README.md and docs/*.md resolve
   - scripts/fin.py gives the expected NPV, ROI, IRR and payback on a fixed input
 
-A reference to another skill (`requirements-review/references/iso29148.md`) is a
-warning, because it only works when the whole set is installed. With --standalone
-it is an error, to check that each skill works when installed alone.
+A reference to another skill by path (`requirements-review/references/iso29148.md`)
+or a Markdown link that leaves the skill folder is a warning, because it only works
+when the whole set is installed. With --standalone it is an error, to check that each
+skill works when installed alone. Naming another skill without a path is fine.
 
 Usage: python3 scripts/validate.py [--standalone]
 Needs PyYAML (pip install pyyaml). Exit code 1 when any error is found.
@@ -113,6 +114,19 @@ def check_references(skill_dir, standalone):
                 errors.append(f"{rel(md)}: broken reference `{m.group(0).strip('`')}`")
 
 
+def check_skill_links(skill_dir, standalone):
+    for md in sorted(skill_dir.rglob("*.md")):
+        for m in LINK_RE.finditer(md.read_text(encoding="utf-8")):
+            href = m.group(1)
+            if re.match(r"[a-z][a-z0-9+.-]*:", href):
+                continue
+            target = (md.parent / href).resolve()
+            if skill_dir.resolve() not in target.parents and target != skill_dir.resolve():
+                (errors if standalone else warnings).append(
+                    f"{rel(md)}: link ({href}) leaves the skill folder"
+                    " (works only when the whole set is installed)")
+
+
 def check_local_paths():
     files = [p for p in ROOT.rglob("*") if p.is_file() and p.suffix in TEXT_SUFFIXES
              and ".git" not in p.relative_to(ROOT).parts]
@@ -167,6 +181,7 @@ def main():
     for d in skill_dirs:
         check_frontmatter(d)
         check_references(d, standalone)
+        check_skill_links(d, standalone)
     check_local_paths()
     check_doc_links()
     check_fin()
