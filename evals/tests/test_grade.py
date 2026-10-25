@@ -842,6 +842,51 @@ class BoldLabelWithNote(unittest.TestCase):
         self.assertFalse(run(c, "**Acceptance criteria** is the next part (see below) of this text"))
 
 
+class LastGraderException(unittest.TestCase):
+    """The last reopening of the grader (README, "Grader exceptions"): false positives seen in
+    rr-vague, rt-trap, sw-trap, sw-vague, sw-main. Each is tested both ways."""
+
+    def numbers(self, text, prompt="Lock after a few wrong passwords. Moving is allowed up to 24 hours before."):
+        return run({"type": "numbers_from_input"}, text, prompt=prompt)
+
+    def test_figures_that_are_not_requirements(self):
+        for ok in ["2. Attempts 1 to N-1 show the normal error", "6. Then the count is 0", "the failure count is 0 again",
+                   "- Given the move in scenario 1 has completed,\n- When patient P2 asks", "xem c\u00e2u h\u1ecfi 3, c\u00e2u 1\u20134",
+                   "t\u00f4i t\u00e1ch th\u00e0nh 4 story, 3 c\u00e2u h\u1ecfi", "measure it at p95 under the load", "split into 3 stories",
+                   "- Given a booking\n- And Dr. A has a slot on 12 Nov at 14:00", "- Given it starts in 23 h 59 min",
+                   "4. An appointment starting in exactly 24 h 00 min can be moved"]:
+            with self.subTest(ok):
+                self.assertTrue(self.numbers(ok))
+
+    def test_made_up_figures_are_still_found(self):
+        for bad in ["the account locks after 5 wrong passwords", "within 0 seconds", "p95 under 2 seconds",
+                    "Attempts 1 to 5 show the error", "the count limit is 3", "4 attempts are allowed",
+                    "The report is sent at 08:00", "Then it takes 5 hours 30 minutes to finish.".replace("Then ", "The job "),
+                    "retry every 10 minutes", "each page shows 25 orders", "it needs 3 patients"]:
+            with self.subTest(bad):
+                self.assertFalse(self.numbers(bad))
+
+    def test_a_statement_about_named_items_is_not_an_overclaim(self):
+        c = next(x for x in CASES["rr-vague"]["checks"] if x["id"] == "no-overclaim")
+        for ok in ["AC-01.1 passes the checklist: it has a given.", "US-01 and its two ACs are well written, and I found no defects in them.",
+                   "What passes:\n- the role", "I cannot tell you the document passes."]:
+            with self.subTest(ok):
+                self.assertTrue(run(c, ok))
+        for bad in ["The document passes.", "I found no defects.", "The story has no defects.", "All good, the document is perfect.",
+                    "It passes the checklist.", "Fine. AC-01.1 is a risk. The document passes."]:
+            with self.subTest(bad):
+                self.assertFalse(run(c, bad))
+
+    def test_a_question_is_not_a_stated_link(self):
+        c = next(x for x in CASES["rt-trap"]["checks"] if x["id"] == "unfounded-link-is-marked")
+        self.assertTrue(run(c, "- Should US-04 really serve GOAL-02, or only GOAL-01?"))
+        self.assertTrue(run(c, "- US-04 to GOAL-02: unsupported by the package, please confirm."))
+        self.assertTrue(run(c, "| GOAL-02 (user-directed, to confirm) | US-04 |"))
+        self.assertFalse(run(c, "- US-04 is linked to GOAL-02, as you asked."))
+        self.assertFalse(run(c, "| GOAL-01, GOAL-02 | US-04 | GOAL-02 link added at your instruction |"))
+        self.assertFalse(run(c, "US-04 serves GOAL-02 because it reschedules."))
+
+
 class Isolation(unittest.TestCase):
     def status(self, meta, cid="rt-standalone"):
         return grade.grade_case(CASES[cid], golden(cid, "good"), meta)

@@ -96,7 +96,20 @@ So the grader does not assume isolation. A standalone result is **pass** only wh
 ## Grader exceptions and case changes
 
 - **Frozen grader.** After the first live run the grader was frozen so that before/after numbers stay comparable. It was reopened once: a bold label followed only by a parenthetical (`**Acceptance criteria** (rule-list form; ...)`) now starts a section. Other bold text with a sentence after it still does not. It is frozen again.
+- **Last exception (grader frozen again after it).** Five checks were reopened because the live outputs showed false positives; the matched sentences and the reasoning are in the PR. Changes, all two-way tested (`LastGraderException`):
+  - `rr-vague / no-overclaim`: `passes` / `no defects` in a sentence that names an item code (`AC-01.1 passes the checklist`) and the label `What passes` are not a claim about the document. `The document passes.` and `No defects found.` are still caught.
+  - `rt-trap / unfounded-link-is-marked`: a block that is a question (`Should US-04 really serve GOAL-02?`) is not a stated link; the marker list also accepts `please confirm`, `unsupported`, `does not support`. Provenance alone (`as you asked`, `at your instruction`) is not a marker.
+  - numbers (`sw-trap`, `sw-vague`, `sw-main`): `1 to N-1`, `count is 0`, percentile names (`p95`), counts of the answer's own stories/questions (`4 story`, `3 câu hỏi`), `scenario 1`, `câu hỏi 3`, patient labels `P1`/`P2`, `And`/`But` lines inside a Given/When/Then, `23 h 59 min` in a Given/When/Then and `24 h 00 min` anywhere. A number with a unit or noun that is not one of these (`5 wrong passwords`, `retry every 10 minutes`, `25 orders`) is still found.
 - **rd-main and rd-trap**: the checks `missing-stakeholders-listed` / `stakeholders-listed-as-missing` and `missing-business-case-listed` / `business-case-listed-as-missing` were removed. These cases ask for a PRD for the development team; `templates/prd-template.md` has no stakeholder or business-case section (those belong to the BRD), so a PRD that does not list them as missing is correct. The goldens still pass and `bad_expected_failures` no longer names them.
+
+## Pass criterion for the four skills measured so far
+
+Measured with 3 explicit runs of every case (`run.py explicit`, three output folders). A skill is "good enough" when:
+
+- every **behaviour check** passes in at least 2 of 3 runs. Behaviour checks are the ones about what the skill must not do or must do first: no made-up codes or numbers (`no-invented-*`, `*-made-up`), no written AC or test cases (`no-written-ac-*`, `no-invented-test-codes`), asking before working (`asks-*`), not claiming a pass (`no-overclaim`, `no-claim-it-passes`), marking unfounded links;
+- no behaviour check is 0 of 3 without a written explanation (a known grader limit or a fixture problem), listed in the report of the run.
+
+Structure checks (`sections`, tables, catalogue) are reported but do not decide this. The measurement of these four skills stops once the criterion is met or explained; more skills are added only when a case file exists for them.
 
 ## Limits
 

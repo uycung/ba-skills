@@ -34,7 +34,8 @@ checks:
   - id: no-overclaim
     type: not_match
     unless_negated: true
-    pattern: '\b(no (defects|issues|problems)|passes|fully (valid|correct|verified)|all good|flawless|perfect)\b'
+    unless_about_items: true
+    pattern: '\b(no (defects|issues|problems)|(?<!what )passes|fully (valid|correct|verified)|all good|flawless|perfect)\b'
   - id: verdict-consistent
     type: verdict
     section: Verdict

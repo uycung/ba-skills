@@ -43,7 +43,7 @@ NUMBER_WORDS = {w: n for w, n in zip(
     "two three four five six seven eight nine ten eleven twelve fifteen twenty thirty forty fifty sixty "
     "hundred thousand".split(), [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 15, 20, 30, 40, 50, 60, 100, 1000])}
 REF_NUMBER_RE = re.compile(r"(?i)\b(?:questions?|sections?|findings?|items?|rows?|points?|steps?|checks?|clauses?|"
-                           r"criteri(?:on|a)|tables?|lines?)\s+\d+(?:\.\d+)*(?:\s*(?:-|to)\s*\d+(?:\.\d+)*)?|#\d+")
+                           r"criteri(?:on|a)|tables?|lines?|scenarios?|cases?|c\u00e2u h\u1ecfi|c\u00e2u)\s+\d+(?:\.\d+)*(?:\s*(?:-|to)\s*\d+(?:\.\d+)*)?|#\d+")
 CONCRETE_AMOUNT_RE = re.compile(r"\d+(?:[.,]\d+)?\s*(?:%|ms|s\b|sec|secs|seconds?|mins?|minutes?|hours?|days?|"
                                 r"giây|phút|giờ|ngày)", re.I)
 DASHES_RE = re.compile("[\u2010\u2011\u2012\u2013\u2212]")  # hyphen look-alikes: US\u201199 is the code US-99
@@ -54,13 +54,18 @@ EXAMPLE_DATA_RE = re.compile(
     r"\b\d{1,2}:\d{2}(?::\d{2})?(?:\s?[ap]m\b)?"                                  # 09:00, 14:30, 9:00 am
     r"|\b\d{1,2}(?:st|nd|rd|th)?\s+(?:of\s+)?" + MONTH + r"\b(?:,?\s+\d{4})?"     # 10 Nov, 3rd March 2027
     r"|\b" + MONTH + r"\s+\d{1,2}(?:st|nd|rd|th)?\b(?:,?\s+\d{4})?"               # Nov 10, March 3rd
+    r"|\b\d+\s*(?:h|hours?)\s*\d{1,2}\s*(?:min|minutes?)\b"                         # "23 h 59 min" as a boundary example
     r"|\b00\s*(?:minutes?|mins?|seconds?|secs?)\b")                                   # "24 hours 00 minutes"
 VARIABLE_STEP_RE = re.compile(r"\b[A-Za-z]\s?[-+]\s?\d{1,2}\b(?![\d:.])")  # N-1, N+1: a parameter, not a figure
-COUNTER_RESET_RE = re.compile(r"(?i)\b(?:resets?|resetting|counter|count)\b[^.\n]{0,30}?\bto 0\b")
+COUNTER_RESET_RE = re.compile(r"(?i)\b(?:resets?|resetting|counter|count)\b[^.\n]{0,30}?\b(?:to|is|at|=)\s*0\b")
 QUOTED_RE = re.compile(r'"[^"\n]*"|\u201c[^\u201d\n]*\u201d')
-GWT_RE = re.compile(r"\b(?:given|when|then)\b", re.I)
+GWT_RE = re.compile(r"\b(?:given|when|then)\b|^\s*(?:[-*]\s*)?(?:and|but)\b", re.I)
 # "F2", "Q4", "A1", "AC3", "AC 3": labels of findings, questions, assumptions and criteria the answer numbers itself
-LABEL_RE = re.compile(r"\b(?:[FQA]\d{1,3}|AC\s?\d{1,3})\b")
+LABEL_RE = re.compile(r"\b(?:[FQA]\d{1,3}|AC\s?\d{1,3}|P\d)\b")  # P1, P2: patient 1, patient 2
+PERCENTILE_RE = re.compile(r"(?i)\bp\d{2}(?:\.\d)?\b")  # p95 names a way to measure, it sets no value
+OWN_COUNT_RE = re.compile(r"(?i)\b\d+\s+(?:stories|story|user stories|ACs?|acceptance criteria|questions?|c\u00e2u h\u1ecfi|c\u00e2u)\b")  # "split into 4 stories"
+ZERO_PADDED_RE = re.compile(r"\b00\s*(?:minutes?|mins?|seconds?|secs?)\b")  # "24 h 00 min"
+VARIABLE_RANGE_RE = re.compile(r"\b\d+\s+to\s+[A-Za-z]\b(?:\s?[-+]\s?\d{1,2}\b)?")  # "attempts 1 to N-1"
 NUMBER_RE = re.compile(r"\d+(?:[.,]\d+)?")
 PATH_TOKEN_RE = re.compile(
     r"(?<![\w/.-])((?:[a-z0-9-]+/)?(?:references|templates|scripts)/[A-Za-z0-9_./-]*[A-Za-z0-9_])")
@@ -338,8 +343,12 @@ def clean_for_numbers(s, examples=False):
     s = ID_RE.sub(" ", s)
     s = REF_NUMBER_RE.sub(" ", s)
     s = LABEL_RE.sub(" ", s)
+    s = VARIABLE_RANGE_RE.sub(" ", s)
     s = VARIABLE_STEP_RE.sub(" ", s)
     s = COUNTER_RESET_RE.sub(" ", s)
+    s = PERCENTILE_RE.sub(" ", s)
+    s = OWN_COUNT_RE.sub(" ", s)
+    s = ZERO_PADDED_RE.sub(" ", s)
     s = re.sub(r"https?://\S+", " ", s)
     s = re.sub(r"(?m)^\s*\|\s*\d+\s*\|", "|", s)  # row numbers in the first column of a table
     return re.sub(r"(?m)^\s*(?:#+\s*)?(?:\d+(?:\.\d+)+[.)]?|\d+[.)])\s", " ", s)
@@ -410,6 +419,12 @@ def chk_match(ctx, p):
     return True, ""
 
 
+def sentence_start(body, pos):
+    """Start of the sentence that holds `pos`; a full stop inside a code (AC-01.1) does not end it."""
+    cut = [m.end() for m in re.finditer(r"[!?\n]|\.\s", body[:pos])]
+    return cut[-1] if cut else 0
+
+
 def chk_not_match(ctx, p):
     body, err = scope(ctx, p)
     if err:
@@ -418,6 +433,9 @@ def chk_not_match(ctx, p):
         if p.get("unless_negated"):  # "I cannot tell you it passes" is a refusal, not a claim
             start = max(body.rfind(c, 0, m.start()) for c in ".!?\n") + 1
             if NEGATION_RE.search(body[start:m.start()]):
+                continue
+        if p.get("unless_about_items"):  # "AC-01.1 passes the checklist" says something about one item
+            if find_ids(body[sentence_start(body, m.start()):m.start()]):
                 continue
         return False, f"forbidden text found: {m.group(0)[:60]!r}"
     return True, ""
@@ -670,7 +688,8 @@ def chk_distinct_terms(ctx, p):
 
 def chk_link_requires_marker(ctx, p):
     marker = re.compile(p["marker"], re.I)
-    linked = [b for b in blocks(ctx.text) if all(re.search(a, b, re.I) for a in p["anchor"])]
+    linked = [b for b in blocks(ctx.text) if all(re.search(a, b, re.I) for a in p["anchor"])
+              and not b.rstrip().endswith("?")]  # a question to confirm is not a stated link
     bad = [b[:60] for b in linked if not marker.search(b)]
     return (False, "link stated without a basis marker: " + " | ".join(bad)) if bad else (True, "")
 
