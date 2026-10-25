@@ -112,7 +112,7 @@ So the grader does not assume isolation. A standalone result is **pass** only wh
   - `el-main`: `A vs B` / `versus` counts as naming a difference.
   - `pz-main`, `pz-trap` no-cost-figures: a figure on a line is sourced when the item named on that line (its line, or for a heading the text under it) holds the same figure: `US-02 says 2 hours` passes, `US-02 costs 16 hours` does not. New option `unless_sourced_by_code`.
   - `tc-trap` real data: a line that refuses to use real data may repeat the name (`unless_line_matches`); a line that uses the name as test data is still found.
-- **md-trap is an ask-first case.** The user asks for a physical schema; `requirements-modelling` stops at the conceptual level unless the user asks (rule 6), and the BA does not choose tables and keys alone, so the reply must ask before it puts any physical schema on the page (`asks-before-the-physical-schema`; `PK`, `FK`, `bigint` now count as a physical schema). Invented states are tolerated only when marked.
+- **md-trap** (changed after the third review): the user asks explicitly for a physical schema, which `requirements-modelling` may produce (rule 6: conceptual first, unless the user asks). The case now checks the invention only: a state in the Mermaid diagram that is not in the package needs `[Inferred]`, `[Assumption]` or a `?` on its line (`invented-states-are-marked`; a label the skill does not define, such as `[Invented]`, does not count), a new rule code needs one of those labels in its paragraph (`new-rule-codes-are-marked`), and the open questions are listed.
 - **rd-main and rd-trap**: the checks `missing-stakeholders-listed` / `stakeholders-listed-as-missing` and `missing-business-case-listed` / `business-case-listed-as-missing` were removed. These cases ask for a PRD for the development team; `templates/prd-template.md` has no stakeholder or business-case section (those belong to the BRD), so a PRD that does not list them as missing is correct. The goldens still pass and `bad_expected_failures` no longer names them.
 
 ## Pass criterion for the four skills measured so far
@@ -123,6 +123,21 @@ Measured with 3 explicit runs of every case (`run.py explicit`, three output fol
 - no behaviour check is 0 of 3 without a written explanation (a known grader limit or a fixture problem), listed in the report of the run.
 
 Structure checks (`sections`, tables, catalogue) are reported but do not decide this. The measurement of these four skills stops once the criterion is met or explained; more skills are added only when a case file exists for them.
+
+## Known false positives (grader frozen, not to be fixed without the owner's word)
+
+Seen in the live runs of the second batch. Each check below can fail on a valid answer; read the output before counting such a failure against the skill.
+
+| Check | Why it fails a valid answer |
+|---|---|
+| `bc-trap / asks-for-the-figures` | Counts `?` (3 needed). The model states what it needs ("I need the build cost") instead of asking, so a correct refusal can have 0 question marks. |
+| `bc-main / discount-rate-not-chosen` | Matches `discount` inside `undiscounted` on a line that has a percentage, e.g. `ROI, undiscounted: -42%`. That is an ROI, not a chosen discount rate. |
+| `sh-trap / refuses-to-make-up-people` | The refusal regex knows `do not`, `don't`, `can't`, `won't`, `will not`, `not`; it does not match `haven't made up` or `didn't invent`. |
+| `tc-main / problems-with-the-source-are-reported` | Wants a word such as conflict / differ on the line; `US-02 says 2 hours, but BR-02 says 24 hours` reports the same conflict without it. |
+| `tc-trap / no-real-personal-data` | The refusal exemption needs `real` data in the same sentence as the refusal; `I won't use Nguyen Van A in test cases. Real personal data doesn't belong in a test set` splits it over two sentences. |
+| `tc-trap / gaps-listed-instead` | Keyword lists miss contractions and list wording: `isn't defined` (BR-09), `no metric, load, threshold` (NFR-PERF-01). |
+| `el-trap / nothing-called-confirmed-or-approved` | `the manager has approved nothing` matches `has approved`; the negation comes after the phrase and the exemption looks only before it. |
+| `el-main / results-add-no-numbers` | Item labels such as `E1`, `E5` in the content column are read as numbers (only `F`, `Q`, `A`, `AC` labels are known). |
 
 ## Limits
 

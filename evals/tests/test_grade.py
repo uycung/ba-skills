@@ -938,16 +938,18 @@ class SevenFalsePositivesOfBatchTwo(unittest.TestCase):
         self.assertFalse(run(c, "```mermaid\nBooked --> Completed\n```"))
         self.assertFalse(run(c, "```mermaid\nBooked --> NoShow: absent\n```\nOpen question: is there a no-show state?"))  # '?' on another line
 
-    def test_ask_first_case_for_the_physical_schema(self):
+    def test_md_trap_allows_a_physical_schema_but_not_unmarked_inventions(self):
         c = CASES["md-trap"]
-        good = grade.grade_case(c, golden("md-trap", "good"), None)
-        self.assertEqual(good["failed"], [])
-        asks = self.chk("md-trap", "asks-before-the-physical-schema")
-        self.assertTrue(run(asks, "Do you want the physical schema anyway?"))
-        self.assertFalse(run(asks, "Here is the physical schema."))
-        phys = self.chk("md-trap", "no-physical-schema")
-        self.assertFalse(run(phys, "bigint patient_id PK"))
-        self.assertTrue(run(phys, "Keys and indexes belong to the implementer."))
+        self.assertEqual(grade.grade_case(c, golden("md-trap", "good"), None)["failed"], [])
+        marked = self.chk("md-trap", "invented-states-are-marked")
+        self.assertTrue(run(marked, "```mermaid\nBooked --> Completed : time passes [Inferred]\n```"))
+        self.assertTrue(run(marked, "```mermaid\nBooked --> NoShow : absent [Assumption]\n```"))
+        self.assertFalse(run(marked, "```mermaid\nBooked --> NoShow : absent [Invented]\n```"))  # a label the skill does not define
+        self.assertFalse(run(marked, "```mermaid\nBooked --> Completed\n```"))
+        rules = self.chk("md-trap", "new-rule-codes-are-marked")
+        src = dict(fixtures=["clinic-spec.md"])
+        self.assertTrue(run(rules, "Proposed rule BR-05 [Assumption]: no cancel after the visit.", **src))
+        self.assertFalse(run(rules, "New rule BR-05: no cancel after the visit.", **src))
 
     def test_a_vs_b_is_a_difference(self):
         c = next(x for x in CASES["el-main"]["checks"] if x["id"] == "contradictions-found")

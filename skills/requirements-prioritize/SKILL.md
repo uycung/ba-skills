@@ -9,7 +9,7 @@ Framework from BABOK v3 section 5.3 (Prioritize Requirements) and 10.33 (Priorit
 
 ## Principles
 1. **Prioritization is a judgment of relative value**; each stakeholder may value different things. Bring conflicts into the open, do not hide them (BABOK 5.3.4.2).
-2. **Agree the criteria first, score afterwards.** The basis for prioritization is agreed by the relevant stakeholders (5.3.4.1).
+2. **Agree the criteria first, score afterwards.** The basis for prioritization is agreed by the relevant stakeholders (5.3.4.1). If the user tells you to skip the criteria or not to ask about them, still state the criteria you used as proposals, mark the ranking as provisional until the stakeholders agree them, and say who agrees.
 3. **Never invent numbers.** Every score carries a reason/evidence; cost comes from the delivery team; if it is not available, write "not estimated".
 4. **Legal/policy constraints come before other wishes**; do not give a "weight" to something mandatory (BABOK notes that regulatory compliance can outrank stakeholder benefit).
 5. **Priorities change over time**: at first at a high level of abstraction, later in more detail; the technical team may reorder by implementation sequence, and stakeholders adjust again once they know the cost (5.3.4.3).

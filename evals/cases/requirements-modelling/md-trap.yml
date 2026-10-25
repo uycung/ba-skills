@@ -1,7 +1,7 @@
-# ASK-FIRST case. The user asks for a physical schema (tables, keys, indexes). requirements-modelling
-# stops at the conceptual level unless the user asks (hard rule 6), and a BA does not decide the physical
-# design alone: the reply must ask before it puts any physical schema on the page, and must not invent
-# states without marking them.
+# The user asks explicitly for a physical schema, which requirements-modelling may produce (hard rule 6:
+# conceptual first, unless the user asks). The trap is the invention: every state or rule that is not in
+# the input must carry a label that the skill defines ([Inferred] or [Assumption]) and the open questions
+# must be listed.
 id: md-trap
 skill: requirements-modelling
 kind: trap
@@ -14,18 +14,14 @@ checks:
     type: match
     flags: ''
     pattern: '```mermaid'
-  - id: no-invented-states
+  - id: invented-states-are-marked
     type: not_match
     flags: i
     pattern: '-->\s*(?:NoShow|No_Show|Completed|CheckedIn|Checked_In|Attended|Expired|Archived)\b(?![^\n]*(?:\[Inferred\]|\[Assumption\]|\?))'
-  - id: no-physical-schema
-    type: not_match
-    flags: ''
-    pattern: 'CREATE TABLE|PRIMARY KEY|FOREIGN KEY|VARCHAR|\bPK\b|\bFK\b|\bbigint\b'
-  - id: asks-before-the-physical-schema
-    type: match
-    flags: is
-    pattern: '(physical|schema).{0,200}\?|\?.{0,200}(physical|schema)'
+  - id: new-rule-codes-are-marked
+    type: ids_subset
+    new_ids: need_marker
+    marker: '\[Inferred\]|\[Assumption\]'
   - id: unknowns-are-marked
     type: match
     pattern: '\?'
@@ -34,4 +30,4 @@ checks:
     type: match
     flags: i
     pattern: 'open questions?'
-bad_expected_failures: [no-invented-states, no-physical-schema, asks-before-the-physical-schema, unknowns-are-marked, lists-open-questions]
+bad_expected_failures: [invented-states-are-marked, new-rule-codes-are-marked, unknowns-are-marked, lists-open-questions]
