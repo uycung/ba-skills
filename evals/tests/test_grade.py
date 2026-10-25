@@ -17,7 +17,10 @@ import grade  # noqa: E402
 EVALS = Path(__file__).resolve().parents[1]
 GOLDEN = EVALS / "golden"
 CASES = grade.load_cases()
-SKILLS_UNDER_TEST = {"story-writer", "requirements-review", "requirements-trace", "requirements-document"}
+FIRST_BATCH = {"story-writer", "requirements-review", "requirements-trace", "requirements-document"}
+SECOND_BATCH = {"business-case-strategy", "requirements-elicitation", "requirements-modelling", "nfr-writer",
+                "requirements-prioritize", "requirements-stakeholders", "requirements-testcases"}
+SKILLS_UNDER_TEST = FIRST_BATCH | SECOND_BATCH
 STANDALONE_IDS = {"sw-standalone", "rr-standalone-tracking", "rr-standalone-iso", "rt-standalone", "rd-standalone"}
 
 
@@ -55,10 +58,12 @@ class CaseFiles(unittest.TestCase):
             by_skill.setdefault(c["skill"], []).append(c["kind"])
         self.assertEqual(set(by_skill), SKILLS_UNDER_TEST)
         for skill, kinds in by_skill.items():
-            for kind in ("main", "vague", "trap"):
+            for kind in (("main", "vague", "trap") if skill in FIRST_BATCH else ("main", "trap")):
                 self.assertEqual(kinds.count(kind), 1, f"{skill} needs one {kind} case")
+            if skill in SECOND_BATCH:
+                self.assertEqual(len(kinds), 2, f"{skill}: the light batch has one main and one trap case")
         self.assertEqual({i for i, c in CASES.items() if c["kind"] == "standalone"}, STANDALONE_IDS)
-        self.assertEqual(len(CASES), 17)
+        self.assertEqual(len(CASES), 31)
 
     def test_every_case_is_valid(self):
         for cid, case in CASES.items():
@@ -952,7 +957,7 @@ class StatusMatrix(unittest.TestCase):
 
     def test_only_passes(self):
         code, text, auto = self.run_grade(passing=["sw-main", "rt-standalone"])
-        self.assertEqual((code, self.summary(text)), (3, ("2", "0", "0", "15")))  # 15 outputs missing
+        self.assertEqual((code, self.summary(text)), (3, ("2", "0", "0", str(len(CASES) - 2))))  # the rest is missing
         self.assertEqual(set(auto.values()), {"pass"})
 
     def test_a_failure(self):
@@ -984,7 +989,7 @@ class StatusMatrix(unittest.TestCase):
 
     def test_missing_outputs_are_never_a_zero_by_default(self):
         code, text, _ = self.run_grade(passing=["sw-main"])
-        self.assertEqual((code, self.summary(text)), (3, ("1", "0", "0", "16")))
+        self.assertEqual((code, self.summary(text)), (3, ("1", "0", "0", str(len(CASES) - 1))))
         self.assertIn("MISSING    rr-main", text)
 
     def test_priority_is_fail_then_missing_then_unverified_then_pass(self):
@@ -998,11 +1003,11 @@ class StatusMatrix(unittest.TestCase):
         # unverified only, on a complete run
         every = [c for c in CASES if c != "rt-standalone"]
         code, text, _ = self.run_grade(passing=every, unverified=["rt-standalone"])
-        self.assertEqual((code, self.summary(text)), (2, ("16", "0", "1", "0")))
+        self.assertEqual((code, self.summary(text)), (2, (str(len(CASES) - 1), "0", "1", "0")))
         # fail + unverified on a complete run
         every = [c for c in CASES if c not in ("rt-standalone", "rr-main")]
         code, text, _ = self.run_grade(passing=every, failing=["rr-main"], unverified=["rt-standalone"])
-        self.assertEqual((code, self.summary(text)), (1, ("15", "1", "1", "0")))
+        self.assertEqual((code, self.summary(text)), (1, (str(len(CASES) - 2), "1", "1", "0")))
 
     def test_allow_missing_only_ignores_missing(self):
         self.assertEqual(self.run_grade(passing=["sw-main"], allow_missing=True)[0], 0)
@@ -1012,12 +1017,12 @@ class StatusMatrix(unittest.TestCase):
 
     def test_nothing_graded(self):
         code, text, auto = self.run_grade()
-        self.assertEqual((code, self.summary(text), auto), (3, ("0", "0", "0", "17"), {}))
+        self.assertEqual((code, self.summary(text), auto), (3, ("0", "0", "0", str(len(CASES))), {}))
 
     def test_only_a_complete_proven_run_exits_zero(self):
         every = list(CASES)
         code, text, auto = self.run_grade(passing=every)
-        self.assertEqual((code, self.summary(text)), (0, ("17", "0", "0", "0")))
+        self.assertEqual((code, self.summary(text)), (0, (str(len(CASES)), "0", "0", "0")))
         self.assertEqual(set(auto.values()), {"pass"})
 
 

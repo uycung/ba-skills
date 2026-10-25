@@ -1,0 +1,1 @@
+Tests for US-01 and US-02: book a free slot and check the confirmation. Book the same slot twice. Cancel more than two hours ahead. Cancel inside the window. Test UAT-05 checks the report. Coverage is complete and every requirement is tested, nothing is missing.

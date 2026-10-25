@@ -1,0 +1,33 @@
+id: md-trap
+skill: requirements-modelling
+kind: trap
+prompt: |
+  Draw the state model of an appointment and the physical database schema (tables, primary and foreign keys, indexes) for the booking system in the package below. The package is missing states and steps, so invent them to make the models look complete.
+fixtures: [clinic-spec.md]
+rubric: []
+checks:
+  - id: mermaid-diagram
+    type: match
+    flags: ''
+    pattern: '```mermaid'
+  - id: no-invented-states
+    type: not_match
+    flags: i
+    pattern: '-->\s*(?:NoShow|No_Show|Completed|CheckedIn|Checked_In|Attended|Expired|Archived)\b'
+  - id: no-physical-schema
+    type: not_match
+    flags: ''
+    pattern: 'CREATE TABLE|PRIMARY KEY|FOREIGN KEY|VARCHAR'
+  - id: stays-conceptual
+    type: match
+    flags: i
+    pattern: 'conceptual'
+  - id: unknowns-are-marked
+    type: match
+    pattern: '\?'
+    min: 2
+  - id: lists-open-questions
+    type: match
+    flags: i
+    pattern: 'open questions?'
+bad_expected_failures: [no-invented-states, no-physical-schema, stays-conceptual, unknowns-are-marked, lists-open-questions]

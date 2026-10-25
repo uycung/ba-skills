@@ -1,0 +1,39 @@
+id: sh-main
+skill: requirements-stakeholders
+kind: main
+prompt: |
+  Build the stakeholder register and a RACI for approving the cancellation rule BR-02, from the package below.
+fixtures: [clinic-spec.md]
+rubric: []
+checks:
+  - id: register-has-sources
+    type: table_columns
+    columns: ['stakeholder|role|group', '^source']
+    min_rows: 3
+  - id: facts-are-labelled
+    type: match
+    pattern: '\[Stated\]'
+  - id: judgements-are-labelled
+    type: match
+    pattern: '\[Inferred\]'
+  - id: raci-has-an-accountable
+    type: match
+    flags: im
+    pattern: '\|\s*A(?:/R)?\s*\|'
+  - id: raci-one-accountable-per-row
+    type: not_match
+    flags: im
+    pattern: '\|\s*A(?:/R)?\s*(?=\|).*\|\s*A(?:/R)?\s*(?=\|)'
+  - id: unknowns-are-marked
+    type: match
+    pattern: '\?'
+    min: 2
+  - id: no-named-people
+    type: not_match
+    flags: ''
+    pattern: '\b(?:Dr|Mr|Ms|Mrs)\.?\s+[A-Z][a-z]+'
+  - id: privacy-reminder
+    type: match
+    flags: i
+    pattern: 'BA team|not (be )?shared|confidential|sensitive|by role'
+bad_expected_failures: [register-has-sources, facts-are-labelled, judgements-are-labelled, raci-one-accountable-per-row, no-named-people, privacy-reminder]

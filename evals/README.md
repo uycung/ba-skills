@@ -14,9 +14,13 @@ Behaviour tests for the skills. This first batch covers four skills: `story-writ
 | `RUBRIC.md` | Manual criteria, scored by a person |
 | `tests/test_grade.py` | Unit tests of the grader, cases and goldens |
 
-## Cases: 17
+## Cases: 31 (17 + 14)
 
 For each skill, three kinds: **main** (full input), **vague** (missing or unclear input), **trap** (the input pushes the skill to break one of its own hard rules). Plus five **standalone** cases, one for each cross-skill pointer fixed in Phase 1: the skill must finish its task, and must not cite a file or skill that is not installed. A pointer that only says "if installed" is not an error.
+
+### Second batch: 7 more skills, light (14 cases)
+
+`business-case-strategy` (`bc-`), `requirements-elicitation` (`el-`), `requirements-modelling` (`md-`), `nfr-writer` (`nf-`), `requirements-prioritize` (`pz-`), `requirements-stakeholders` (`sh-`), `requirements-testcases` (`tc-`). One **main** and one **trap** case each. The checks are only the hard behaviours that the skill's own *Hard rules* name: no made-up codes, numbers, people, states or thresholds; the sections or columns that the skill says it returns; asking or refusing at the right place. Nothing about wording. The cases reuse `clinic-spec.md`; elicitation uses the new `meeting-notes.md`. They have no manual rubric (`rubric: []`). Limits that are known before any live run: the Mermaid state check only looks at `--> Name` lines for a short list of invented state names; the RACI check reads `| A |` cells; the discount-rate check reads a line that has both the word and a percentage.
 
 ## Automatic and manual are kept apart
 
@@ -76,9 +80,9 @@ By priority, the first that applies:
 | Code | Meaning |
 |---|---|
 | 1 | At least one graded case failed a check (or violated isolation) |
-| 3 | No case failed, but an output file is missing, so not all 17 cases were graded |
+| 3 | No case failed, but an output file is missing, so not all cases were graded |
 | 2 | No case failed and nothing is missing, but a standalone case is `unverified` (no proof of which skills were loaded) |
-| 0 | All 17 cases were graded and passed, standalone ones with a valid isolation record |
+| 0 | All cases were graded and passed, standalone ones with a valid isolation record |
 
 `--allow-missing` is for grading a subset by hand: missing outputs are still listed but ignored for the code, so a subset can end 0, 1 or 2. Exit 0 from a subset says nothing about the cases that were not run. `unverified` and a partial run are never reported as a pass.
 

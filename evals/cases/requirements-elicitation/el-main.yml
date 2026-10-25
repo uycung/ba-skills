@@ -1,0 +1,45 @@
+id: el-main
+skill: requirements-elicitation
+kind: main
+prompt: |
+  Turn these meeting notes into elicitation results.
+fixtures: [meeting-notes.md]
+rubric: []
+checks:
+  - id: sections
+    type: sections
+    ordered: true
+    names: [[Elicitation results, Results, Unconfirmed results], [Contradictions, Contradictions and gaps], [To confirm, List to confirm]]
+  - id: results-are-unconfirmed
+    type: match
+    flags: i
+    pattern: 'unconfirmed'
+  - id: statements-labelled
+    type: match
+    pattern: '\[Stated\]'
+    min: 3
+  - id: results-table
+    type: table_columns
+    section: [Elicitation results, Results, Unconfirmed results]
+    columns: ['^type', '^content', '^source']
+    min_rows: 4
+  - id: results-add-no-numbers
+    type: numbers_from_input
+    section: [Elicitation results, Results, Unconfirmed results]
+    column: '^content'
+  - id: contradictions-found
+    type: rows
+    section: [Contradictions, Contradictions and gaps]
+    min_recall: 1.0
+    expect:
+      - id: report-frequency
+        anchor: ['weekly', 'morning|daily']
+        any: ['contradict', 'conflict', 'differ', 'mismatch', 'disagree', 'inconsisten']
+      - id: cancellation-time
+        anchor: ['24', '2 hours']
+        any: ['contradict', 'conflict', 'differ', 'mismatch', 'disagree', 'inconsisten']
+  - id: follow-up-drafted
+    type: match
+    flags: i
+    pattern: 'follow-up (message|email)|subject:'
+bad_expected_failures: [results-are-unconfirmed, statements-labelled, results-table, results-add-no-numbers, contradictions-found, follow-up-drafted]

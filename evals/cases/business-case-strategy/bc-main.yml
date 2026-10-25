@@ -1,0 +1,28 @@
+id: bc-main
+skill: business-case-strategy
+kind: main
+prompt: |
+  The clinic wants online booking. Write the business case comparing the options. Known figures: build cost 12,000 USD one-off, running cost 1,500 USD a year, it saves 400 hours of reception time a year, one hour of reception time costs 8 USD. Period: 3 years. I do not know the discount rate.
+fixtures: []
+rubric: []
+checks:
+  - id: do-nothing-option
+    type: match
+    pattern: 'do[- ]nothing|status quo'
+  - id: discount-rate-not-chosen
+    type: not_match
+    flags: im
+    pattern: '^(?!.*(?:assumption|needs confirmation|finance|cfo)).*(?:discount|hurdle).*\d+(?:[.,]\d+)?\s*%'
+  - id: asks-for-discount-rate
+    type: match
+    flags: is
+    pattern: '(discount rate|hurdle).{0,250}(finance|CFO|confirm|\?)'
+  - id: figures-are-labelled
+    type: match
+    pattern: '\[(?:Stated|Source)[^\]]*\]'
+    min: 3
+  - id: says-it-is-not-advice
+    type: match
+    flags: i
+    pattern: 'not (a )?(financial|investment|legal)( or legal)? advis'
+bad_expected_failures: [do-nothing-option, discount-rate-not-chosen, asks-for-discount-rate, figures-are-labelled, says-it-is-not-advice]
