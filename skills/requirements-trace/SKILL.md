@@ -1,6 +1,6 @@
 ---
 name: requirements-trace
-description: "Build a traceability matrix and review coverage between goals, FRs, user stories, acceptance criteria, NFRs and tests; use when a BA needs to check a spec for gaps, analyze the impact of a requirement change, or prepare before sign-off/approval."
+description: "Build a traceability matrix and check coverage: links between goals, FRs, user stories, acceptance criteria, business rules, NFRs and tests; find coverage gaps (a goal with no story, a story with no goal or AC, a rule or NFR nobody uses, missing tests), contradictions, and the impact of a change. Use when asked to link, trace, map or check coverage, or to list the gaps of a spec, even if the stories have no codes, or the user also asks to add links or test cases (it records only links and tests that exist). Not for judging how well items are worded: that is requirements-review."
 ---
 
 # Requirements Trace

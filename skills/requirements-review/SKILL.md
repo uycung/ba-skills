@@ -1,6 +1,6 @@
 ---
 name: requirements-review
-description: "Review the quality of requirements documents (stories, FRs, use cases, NFRs, rules, models, PRDs) per BABOK: check they are written correctly (verify) and meet the need (validate), return a findings report with severity and a ready-to-approve verdict; use before asking for approval or handing over to dev/testers, or to plan a review session."
+description: "Review the quality of the wording of requirements documents (stories, AC, FRs, use cases, NFRs, rules, models, PRDs) per BABOK: check they are written correctly (verify) and meet the need (validate), and return a findings report with severity and a ready-to-approve verdict. Use before asking for approval or handing over to dev/testers, or to plan a review session, including when the user also asks you to fix the text or to confirm that it passes (it reports findings and proposals; it does not rewrite or approve). Links and coverage between items belong to requirements-trace."
 ---
 
 # Requirements Review
