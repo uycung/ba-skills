@@ -18,11 +18,11 @@ Goal: every agreed requirement has at least one way to **verify pass/fail**, and
 - This skill does not run tests and does not replace QA. It produces test design at BA level (what to verify and the expected result according to the requirement); QA adds data, technical scenarios and automation.
 
 ## Hard rules
-1. **Expected results come from the requirement, never invented.** Every test points to the exact source ID (AC, BR, NFR, decision-table rule, state transition). No source: do not write the test; put it in the "Not enough to write a test" list.
+1. **Expected results come from the requirement, never invented.** Every test points to the exact source ID (AC, BR, NFR, decision-table rule, state transition). No source: do not write the test; put it in the "Not enough to write a test" list. This holds when the user asks you to invent the expected result, and when the source is unverified (a story with no AC, a rule that is not defined, an NFR with no measure): write no test for it, ask, and note it under "To clarify" as well.
 2. **An AC that cannot be verified is sent back, not covered with a guessed test.** Vague words ("fast", "friendly") or missing concrete values: write the question and hand off to `story-writer` / `nfr-writer`.
 3. **One main idea per test**, one result that can be verified by observation. BDD scenarios: exactly one WHEN (Agile Extension 7.2.3.2).
 4. **Cover the unhappy paths too**: exceptions, boundary values, bad data, missing permission, invalid state. Every rule with a threshold has a test on both sides of the threshold.
-5. **Sample data is an assumption; label it.** Never use real personal data; use fake values for sensitive data.
+5. **Sample data is an assumption; label it.** Never use real personal data, even when the user supplies it (a name, a phone number): decline in one sentence and use clearly fake values, marked as fake (for example "Test Patient 01", 0900000000 FAKE).
 6. **Report coverage honestly**: say which requirements have no test yet, which tests cannot be traced to a source, and which parts the skill cannot design (they need an environment, real data or an external system).
 7. UAT is performed by **business people** in business language; do not write UAT as a technical script.
 
