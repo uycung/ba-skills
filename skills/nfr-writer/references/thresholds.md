@@ -45,7 +45,7 @@ Appropriateness recognizability, learnability, operability, user error protectio
 | Minimum touch target size 24×24 CSS px (criterion 2.5.8, level AA) | ✅ | w3.org/TR/WCAG22 |
 | Focus not obscured (2.4.11, level AA) | ✅ | w3.org/TR/WCAG22 |
 | Support for login that does not require remembering/puzzles (3.3.8, level AA) | ✅ | w3.org/TR/WCAG22 |
-Note on mapping: WCAG mainly serves "inclusivity" (and partly "operability"). The original placed 2.4.7 under "user assistance", which is a stretch and has been removed.
+Note on mapping: WCAG mainly serves "inclusivity" and "user assistance" (in the 2023 definitions, user assistance is the accessibility side: use by people with the widest range of capabilities), and partly "operability". Criterion 2.4.7 was removed earlier because it was placed under "user assistance" when that sub-characteristic was read as "help text"; with the 2023 definition that placement can be reconsidered, but it needs a source before it is added back.
 WCAG 2.0 AA under Circular 26/2020 (TT 26/2020): not verified (see the removal section).
 
 ## 5. Reliability (4)

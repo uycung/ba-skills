@@ -19,6 +19,7 @@ Purpose per BABOK 5.1.8: requirements have clear relationships so that coverage 
 | 12 | Duplicate codes, unusual gaps in codes, links pointing to codes that do not exist? | Low |
 | 13 | Which links fail the 5 criteria (defined, necessary, correct, unambiguous, consistent)? Is any requirement stated more than once? (BABOK 7.4) | Medium |
 | 14 | Which items are treated as agreed without being approved, or were approved and then edited without going through change assessment? (BABOK 5.5) | High |
+| 15 | Compliance: for each stakeholder requirement or mandatory (legal/contract) requirement, is there a link down to the item and the evidence that shows it is satisfied (a test, inspection, analysis or demonstration)? (ISO/IEC/IEEE 29148, 6.4.3: compliance analysis; the check is proposed by the skill) | Medium |
 
 ## Impact analysis when there is a change
 1. Identify the changed item (code, old content → new).
